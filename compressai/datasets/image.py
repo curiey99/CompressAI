@@ -31,8 +31,11 @@ from pathlib import Path
 
 from PIL import Image
 from torch.utils.data import Dataset
-
+from numpy import load
+from torch import from_numpy
+from torch import squeeze
 from compressai.registry import register_dataset
+from torchvision.transforms import transforms
 
 
 @register_dataset("ImageFolder")
@@ -82,3 +85,131 @@ class ImageFolder(Dataset):
 
     def __len__(self):
         return len(self.samples)
+
+    # train_dataset = ImageFolder(args.dataset, split="train", transform=train_transforms)
+    # test_dataset = ImageFolder(args.dataset, split="test", transform=test_transforms)
+
+@register_dataset("FeatureFolder")
+class FeatureFolder(Dataset):
+    """Load an image folder database. Training and testing image samples
+    are respectively stored in separate directories:
+
+    .. code-block::
+
+        - rootdir/
+            - train/
+                - img000.png
+                - img001.png
+            - test/
+                - img000.png
+                - img001.png
+
+    Args:
+        root (string): root directory of the dataset
+        transform (callable, optional): a function or transform that takes in a
+            PIL image and returns a transformed version
+        split (string): split mode ('train' or 'val')
+    """
+
+    def __init__(self, root, transform=None, split="train"):
+        splitdir = Path(root) / split
+
+        if not splitdir.is_dir():
+            raise RuntimeError(f'Invalid directory "{root}"')
+
+        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+        # print("self.samples[0]: {}, {}".format(type(self.samples[0]), self.samples[0]))
+
+        self.transform = transform
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
+        """
+        fmap = from_numpy(load(self.samples[index]))
+        if self.transform:
+           # print(self.transform(fmap).shape)
+            return squeeze(self.transform(fmap),axis=0)
+        return fmap
+        # img = Image.open(self.samples[index]).convert("RGB")
+        # if self.transform:
+        #     return self.transform(img)
+        # return img
+
+    def __len__(self):
+        return len(self.samples)
+
+
+
+@register_dataset("P5train")
+class P5train(Dataset):
+    def __init__(self, root, transform=None, split="train"):
+        splitdir = Path(root) / split
+        # import glob
+        # # All files and directories ending with .txt and that don't begin with a dot:
+        # print(glob.glob("/home/adam/*.txt")) 
+        # # All files and directories ending with .txt with depth of 2 folders, ignoring names beginning with a dot:
+        # print(glob.glob("/home/adam/*/*.txt")) 
+        import glob
+        if not splitdir.is_dir():
+            raise RuntimeError(f'Invalid directory "{root}"')
+        self.samples = []
+        for file in glob.glob("/data/curieyoon/pseudo/train/p5_*.npy"):
+            self.samples.append(file)
+        #self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+        print("first: {}, {}\nsecond: {}\n".format(type(self.samples[0]), self.samples[0], self.samples[1]))
+        self.transforms = transforms.Compose(
+              [transforms.RandomCrop(25)]
+        )
+
+    def __getitem__(self, index):
+        fmap = load(self.samples[index])
+        if self.transform:
+             return self.transform(fmap)
+        return fmap
+        # img = Image.open(self.samples[index]).convert("RGB")
+        # if self.transform:
+        #     return self.transform(img)
+        # return img
+
+    def __len__(self):
+        return len(self.samples)
+
+@register_dataset("P5test")
+class P5test(Dataset):
+    def __init__(self, root, transform=None, split="train"):
+        splitdir = Path(root) / split
+        # import glob
+        # # All files and directories ending with .txt and that don't begin with a dot:
+        # print(glob.glob("/home/adam/*.txt")) 
+        # # All files and directories ending with .txt with depth of 2 folders, ignoring names beginning with a dot:
+        # print(glob.glob("/home/adam/*/*.txt")) 
+        import glob
+        if not splitdir.is_dir():
+            raise RuntimeError(f'Invalid directory "{root}"')
+        self.samples = []
+        for file in glob.glob("/data/curieyoon/pseudo/test/p5_*.npy"):
+            self.samples.append(file)
+
+        #self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+
+        self.transform = transform
+
+    def __getitem__(self, index):
+        fmap = load(self.samples[index])
+        if self.transform:
+             return self.transform(fmap)
+        return fmap
+        # img = Image.open(self.samples[index]).convert("RGB")
+        # if self.transform:
+        #     return self.transform(img)
+        # return img
+
+    def __len__(self):
+        return len(self.samples)
+
+

@@ -28,6 +28,9 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from .image import ImageFolder
+from .image import FeatureFolder
+from .image import P5test
+from .image import P5train
 from .pregenerated import PreGeneratedMemmapDataset
 from .rawvideo import *
 from .video import VideoFolder
@@ -35,7 +38,10 @@ from .vimeo90k import Vimeo90kDataset
 
 __all__ = [
     "ImageFolder",
+    "FeatureFolder",
     "PreGeneratedMemmapDataset",
     "VideoFolder",
     "Vimeo90kDataset",
+    "P5train",
+    "P5test"
 ]

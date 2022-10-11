@@ -32,6 +32,7 @@ from torch.hub import load_state_dict_from_url
 from compressai.models import (
     Cheng2020Anchor,
     Cheng2020Attention,
+    #Cheng2020Attention_woCTX,
     FactorizedPrior,
     JointAutoregressiveHierarchicalPriors,
     MeanScaleHyperprior,
@@ -47,6 +48,7 @@ __all__ = [
     "mbt2018_mean",
     "cheng2020_anchor",
     "cheng2020_attn",
+    #"cheng2020_attn_woctx",
 ]
 
 model_architectures = {
@@ -56,6 +58,7 @@ model_architectures = {
     "mbt2018": JointAutoregressiveHierarchicalPriors,
     "cheng2020-anchor": Cheng2020Anchor,
     "cheng2020-attn": Cheng2020Attention,
+    #"cheng2020-attn-woctx": Cheng2020AttentionwoCTX,
 }
 
 root_url = "https://compressai.s3.amazonaws.com/models/v1"
@@ -235,16 +238,27 @@ cfgs = {
         5: (192,),
         6: (192,),
     },
+    # "cheng2020-attn": {
+    #     1: (128,),
+    #     2: (128,),
+    #     3: (128,),
+    #     4: (192,),
+    #     5: (192,),
+    #     6: (192,),
+    # },
     "cheng2020-attn": {
-        1: (128,),
-        2: (128,),
-        3: (128,),
-        4: (192,),
-        5: (192,),
-        6: (192,),
+        1: (192,),
+        2: (192,),
+        3: (192,),
+        4: (256,),
+        5: (256,),
+        6: (256,),
     },
 }
 
+# return _load_model(
+#     "cheng2020-attn", metric, quality, pretrained, progress, **kwargs
+# )
 
 def _load_model(
     architecture, metric, quality, pretrained=False, progress=True, **kwargs
