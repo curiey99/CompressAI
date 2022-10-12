@@ -200,7 +200,7 @@ class P5test(Dataset):
         self.transform = transform
 
     def __getitem__(self, index):
-        fmap = load(self.samples[index])
+        fmap = load(self.samples[index], allow_pickle=True)
         if self.transform:
              return self.transform(fmap)
         return fmap
