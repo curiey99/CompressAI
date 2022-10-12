@@ -130,7 +130,7 @@ class FeatureFolder(Dataset):
         Returns:
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
-        fmap = from_numpy(load(self.samples[index]))
+        fmap = from_numpy(load(self.samples[index], allow_pickle=True))
         if self.transform:
            # print(self.transform(fmap).shape)
             return squeeze(self.transform(fmap),axis=0)
@@ -167,7 +167,7 @@ class P5train(Dataset):
         )
 
     def __getitem__(self, index):
-        fmap = load(self.samples[index])
+        fmap = load(self.samples[index], allow_pickle=True)
         if self.transform:
              return self.transform(fmap)
         return fmap
