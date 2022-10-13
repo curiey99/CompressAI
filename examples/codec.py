@@ -425,6 +425,28 @@ def decode_image(f, codec: CodecInfo, output):
     return {"img": img}
 
 
+def decode_feature(f, codec: CodecInfo, output):
+    strings, shape = read_body(f)
+    with torch.no_grad():
+        out = codec.net.decompress(strings, shape)
+
+    x_hat = crop(out["x_hat"], codec.original_size)
+    # p2_3f18d03a93281d35
+    if output[-18] == '3':
+        x_hat = F.interpolate(x_hat, scale_factor=0.5, mode='bicubic')
+    elif output[-18] == '4':
+        x_hat = F.interpolate(x_hat, scale_factor=0.25, mode='bicubic') 
+    elif output[-18] == '5':
+        x_hat = F.interpolate(x_hat, scale_factor=0.125, mode='bicubic')       
+
+    f_hat = x_hat.numpy()
+
+    if output is not None:
+        np.save(output, f_hat)
+
+    return {"img": img}
+
+
 def decode_video(f, codec: CodecInfo, output):
     # read number of coded frames
     num_frames = read_uints(f, 1)[0]
@@ -471,7 +493,7 @@ def decode_video(f, codec: CodecInfo, output):
 
 def _decode(inputpath, coder, show, device, output=None):
     decode_func = {
-        CodecType.IMAGE_CODEC: decode_image,
+        CodecType.IMAGE_CODEC: decode_feature, #decode_image,
         CodecType.VIDEO_CODEC: decode_video,
     }
 
@@ -592,7 +614,7 @@ def decode(argv):
         help="Entropy coder (default: %(default)s)",
     )
     parser.add_argument("--show", action="store_true")
-    parser.add_argument("-o", "--output", help="Output path")
+    parser.add_argument("-o", "--outpuft", help="Output path")
     parser.add_argument("--cuda", action="store_true", help="Use cuda")
     args = parser.parse_args(argv)
     device = "cuda" if args.cuda and torch.cuda.is_available() else "cpu"
