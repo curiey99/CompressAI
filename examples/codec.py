@@ -104,6 +104,7 @@ def load_image(filepath: str) -> Image.Image:
     return Image.open(filepath).convert("RGB")
 
 
+
 def img2torch(img: Image.Image) -> torch.Tensor:
     return ToTensor()(img).unsqueeze(0)
 
@@ -279,9 +280,11 @@ def encode_image(input, codec: CodecInfo, output):
             raise NotImplementedError(f"Unsupported video format: {org_seq.format}")
         x = convert_yuv420_rgb(org_seq[0], codec.device, max_val)
     else:
-        img = load_image(input)
-        x = img2torch(img)
+        # img = load_image(input)
+        # x = img2torch(img)
         bitdepth = 8
+        feature = np.load(input, pickle=True)
+        x = torch.from_numpy(feature)
 
     h, w = x.size(2), x.size(3)
     p = 64  # maximum 6 strides of 2
@@ -614,7 +617,7 @@ def decode(argv):
         help="Entropy coder (default: %(default)s)",
     )
     parser.add_argument("--show", action="store_true")
-    parser.add_argument("-o", "--outpuft", help="Output path")
+    parser.add_argument("-o", "--output", help="Output path")
     parser.add_argument("--cuda", action="store_true", help="Use cuda")
     args = parser.parse_args(argv)
     device = "cuda" if args.cuda and torch.cuda.is_available() else "cpu"
