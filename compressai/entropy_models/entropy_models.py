@@ -391,7 +391,7 @@ class EntropyBottleneck(EntropyModel):
         # only computed and stored when the conditonal model is update()'d.
         if self._offset.numel() > 0 and not force:
             return False
-
+        print("entropy bottleneck offset.numel() = {}".format(self._offset.numel()))
         medians = self.quantiles[:, 0, 1]
 
         minima = medians - self.quantiles[:, 0, 0]
