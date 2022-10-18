@@ -132,7 +132,7 @@ class FeatureFolder(Dataset):
         """
         fmap = from_numpy(load(self.samples[index]))
         if self.transform:
-            print(self.transform(fmap).shape)
+            # print(self.transform(fmap).shape)  torch.Size([1, 256, 256, 256])
             return self.transform(fmap)
         return fmap
         # img = Image.open(self.samples[index]).convert("RGB")
@@ -166,10 +166,9 @@ class FeatureFolderTest(Dataset):
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
         fmap = from_numpy(load(self.samples[index]))
-        if self.transform:
-            print(self.transform(fmap).shape)
-            return self.transform(fmap)
         head_tail = os.path.split(self.samples[index])
+        if self.transform:
+            return self.transform(fmap), head_tail[1]
         return fmap, head_tail[1]
         # img = Image.open(self.samples[index]).convert("RGB")
         # if self.transform:
