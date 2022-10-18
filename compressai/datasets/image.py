@@ -130,7 +130,7 @@ class FeatureFolder(Dataset):
         Returns:
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
-        fmap = torch.from_numpy(load(self.samples[index]))
+        fmap = from_numpy(load(self.samples[index]))
         if self.transform:
             print(self.transform(fmap).shape)
             return self.transform(fmap)
@@ -165,7 +165,7 @@ class FeatureFolderTest(Dataset):
         Returns:
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
-        fmap = torch.from_numpy(load(self.samples[index]))
+        fmap = from_numpy(load(self.samples[index]))
         if self.transform:
             print(self.transform(fmap).shape)
             return self.transform(fmap)
