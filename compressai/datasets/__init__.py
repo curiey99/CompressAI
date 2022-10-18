@@ -29,8 +29,7 @@
 
 from .image import ImageFolder
 from .image import FeatureFolder
-from .image import P5test
-from .image import P5train
+from .image import FeatureFolderTest
 from .pregenerated import PreGeneratedMemmapDataset
 from .rawvideo import *
 from .video import VideoFolder
@@ -42,6 +41,5 @@ __all__ = [
     "PreGeneratedMemmapDataset",
     "VideoFolder",
     "Vimeo90kDataset",
-    "P5train",
-    "P5test"
+    "FeatureFolderTest"
 ]
