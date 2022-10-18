@@ -33,7 +33,7 @@ from PIL import Image
 from torch.utils.data import Dataset
 from numpy import load
 from torch import from_numpy
-from torch import squeeze
+from os import path
 from compressai.registry import register_dataset
 from torchvision.transforms import transforms
 
@@ -130,10 +130,10 @@ class FeatureFolder(Dataset):
         Returns:
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
-        fmap = from_numpy(load(self.samples[index], allow_pickle=True))
+        fmap = torch.from_numpy(load(self.samples[index]))
         if self.transform:
-           # print(self.transform(fmap).shape)
-            return squeeze(self.transform(fmap),axis=0)
+            print(self.transform(fmap).shape)
+            return self.transform(fmap)
         return fmap
         # img = Image.open(self.samples[index]).convert("RGB")
         # if self.transform:
@@ -143,67 +143,34 @@ class FeatureFolder(Dataset):
     def __len__(self):
         return len(self.samples)
 
+@register_dataset("FeatureFolderTest")
+class FeatureFolderTest(Dataset):
 
-
-@register_dataset("P5train")
-class P5train(Dataset):
-    def __init__(self, root, transform=None, split="train"):
+    def __init__(self, root, transform=None, split="test"):
         splitdir = Path(root) / split
-        # import glob
-        # # All files and directories ending with .txt and that don't begin with a dot:
-        # print(glob.glob("/home/adam/*.txt")) 
-        # # All files and directories ending with .txt with depth of 2 folders, ignoring names beginning with a dot:
-        # print(glob.glob("/home/adam/*/*.txt")) 
-        import glob
+
         if not splitdir.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
-        self.samples = []
-        for file in glob.glob("/data/curieyoon/pseudo/train/p5_*.npy"):
-            self.samples.append(file)
-        #self.samples = [f for f in splitdir.iterdir() if f.is_file()]
-        print("first: {}, {}\nsecond: {}\n".format(type(self.samples[0]), self.samples[0], self.samples[1]))
-        self.transforms = transforms.Compose(
-              [transforms.RandomCrop(25)]
-        )
 
-    def __getitem__(self, index):
-        fmap = load(self.samples[index], allow_pickle=True)
-        if self.transform:
-             return self.transform(fmap)
-        return fmap
-        # img = Image.open(self.samples[index]).convert("RGB")
-        # if self.transform:
-        #     return self.transform(img)
-        # return img
-
-    def __len__(self):
-        return len(self.samples)
-
-@register_dataset("P5test")
-class P5test(Dataset):
-    def __init__(self, root, transform=None, split="train"):
-        splitdir = Path(root) / split
-        # import glob
-        # # All files and directories ending with .txt and that don't begin with a dot:
-        # print(glob.glob("/home/adam/*.txt")) 
-        # # All files and directories ending with .txt with depth of 2 folders, ignoring names beginning with a dot:
-        # print(glob.glob("/home/adam/*/*.txt")) 
-        import glob
-        if not splitdir.is_dir():
-            raise RuntimeError(f'Invalid directory "{root}"')
-        self.samples = []
-        for file in glob.glob("/data/curieyoon/pseudo/test/p5_*.npy"):
-            self.samples.append(file)
-
-        #self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+        # print("self.samples[0]: {}, {}".format(type(self.samples[0]), self.samples[0]))
 
         self.transform = transform
 
     def __getitem__(self, index):
-        fmap = load(self.samples[index], allow_pickle=True)
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
+        """
+        fmap = torch.from_numpy(load(self.samples[index]))
         if self.transform:
-             return self.transform(fmap)
-        return fmap
+            print(self.transform(fmap).shape)
+            return self.transform(fmap)
+        head_tail = os.path.split(self.samples[index])
+        return fmap, head_tail[1]
         # img = Image.open(self.samples[index]).convert("RGB")
         # if self.transform:
         #     return self.transform(img)
@@ -211,5 +178,7 @@ class P5test(Dataset):
 
     def __len__(self):
         return len(self.samples)
+
+
 
 
