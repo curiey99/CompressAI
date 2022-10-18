@@ -232,6 +232,9 @@ class EntropyModel(nn.Module):
         if len(self._cdf_length.size()) != 1:
             raise ValueError(f"Invalid offsets size {self._cdf_length.size()}")
 
+    # entropymodel
+    # y_strings = self.gaussian_conditional
+    # .compress(y, indexes, means=means_hat)
     def compress(self, inputs, indexes, means=None):
         """
         Compress input tensors to char strings.
@@ -391,7 +394,8 @@ class EntropyBottleneck(EntropyModel):
         # only computed and stored when the conditonal model is update()'d.
         if self._offset.numel() > 0 and not force:
             return False
-        print("entropy bottleneck offset.numel() = {}".format(self._offset.numel()))
+        # print("entropy bottleneck offset.numel() = {}".format(self._offset.numel()))
+        # offset numel = 0
         medians = self.quantiles[:, 0, 1]
 
         minima = medians - self.quantiles[:, 0, 0]
@@ -626,6 +630,10 @@ class GaussianConditional(EntropyModel):
         multiplier = -self._standardized_quantile(self.tail_mass / 2)
         pmf_center = torch.ceil(self.scale_table * multiplier).int()
         pmf_length = 2 * pmf_center + 1
+
+        ## error
+        #  max(): Expected reduction dim to be specified for input.numel() == 0. 
+        # Specify the reduction dim with the 'dim' argument.
         max_length = torch.max(pmf_length).item()
 
         device = pmf_center.device

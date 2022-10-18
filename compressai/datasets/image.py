@@ -146,7 +146,7 @@ class FeatureFolder(Dataset):
 @register_dataset("FeatureFolderTest")
 class FeatureFolderTest(Dataset):
 
-    def __init__(self, root, transform=None, split="test"):
+    def __init__(self, root, split="test"):
         splitdir = Path(root) / split
 
         if not splitdir.is_dir():
@@ -155,7 +155,6 @@ class FeatureFolderTest(Dataset):
         self.samples = [f for f in splitdir.iterdir() if f.is_file()]
         # print("self.samples[0]: {}, {}".format(type(self.samples[0]), self.samples[0]))
 
-        self.transform = transform
 
     def __getitem__(self, index):
         """
@@ -167,8 +166,6 @@ class FeatureFolderTest(Dataset):
         """
         fmap = from_numpy(load(self.samples[index]))
         head_tail = path.split(self.samples[index])
-        if self.transform:
-            return self.transform(fmap), head_tail[1]
         return fmap, head_tail[1]
         # img = Image.open(self.samples[index]).convert("RGB")
         # if self.transform:
