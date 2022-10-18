@@ -166,7 +166,7 @@ class FeatureFolderTest(Dataset):
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
         fmap = from_numpy(load(self.samples[index]))
-        head_tail = os.path.split(self.samples[index])
+        head_tail = path.split(self.samples[index])
         if self.transform:
             return self.transform(fmap), head_tail[1]
         return fmap, head_tail[1]
