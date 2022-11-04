@@ -181,13 +181,12 @@ class FeatureFolderTest(Dataset):
 @register_dataset("FeatureFolderGeneral")
 class FeatureFolderGeneral(Dataset):
 
-    def __init__(self, root):
-        # splitdir = Path(root) / split
-
+    def __init__(self, root, split="test"):
+        splitdir = Path(root) / split
         # if not splitdir.is_dir():
         #     raise RuntimeError(f'Invalid directory "{root}"')
 
-        self.samples = [f for f in Path(root).iterdir() if f.is_file()]
+        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
         # print("self.samples[0]: {}, {}".format(type(self.samples[0]), self.samples[0]))
 
 
