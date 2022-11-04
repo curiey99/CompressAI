@@ -36,7 +36,9 @@ from torch import from_numpy
 from os import path
 from compressai.registry import register_dataset
 from torchvision.transforms import transforms
-
+from torch.nn.functional import interpolate
+import torch
+import math
 
 @register_dataset("ImageFolder")
 class ImageFolder(Dataset):
@@ -146,7 +148,7 @@ class FeatureFolder(Dataset):
 @register_dataset("FeatureFolderTest")
 class FeatureFolderTest(Dataset):
 
-    def __init__(self, root):#, split="test"):
+    def __init__(self, root, split="test"):
         # splitdir = Path(root) / split
 
         # if not splitdir.is_dir():
@@ -171,6 +173,49 @@ class FeatureFolderTest(Dataset):
         # if self.transform:
         #     return self.transform(img)
         # return img
+
+    def __len__(self):
+        return len(self.samples)
+
+
+@register_dataset("FeatureFolderGeneral")
+class FeatureFolderGeneral(Dataset):
+
+    def __init__(self, root):
+        # splitdir = Path(root) / split
+
+        # if not splitdir.is_dir():
+        #     raise RuntimeError(f'Invalid directory "{root}"')
+
+        self.samples = [f for f in Path(root).iterdir() if f.is_file()]
+        # print("self.samples[0]: {}, {}".format(type(self.samples[0]), self.samples[0]))
+
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
+        """
+        x = from_numpy(load(self.samples[index]))
+        filename = path.split(self.samples[index])
+        if filename[1][1] == '3':
+            x = interpolate(x, scale_factor=2, mode='bicubic')
+        if filename[1][1] == '4':
+            x = interpolate(x, scale_factor=4, mode='bicubic')
+        if filename[1][1] == '5':
+            x = interpolate(x, scale_factor=8, mode='bicubic')
+
+        hpad, wpad = 256-x.shape[2], 256-x.shape[3]
+        padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
+        x = padding(x)
+        # img = Image.open(self.samples[index]).convert("RGB")
+        # if self.transform:
+        #     return self.transform(img)
+        # return img
+        return x
 
     def __len__(self):
         return len(self.samples)
