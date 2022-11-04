@@ -132,11 +132,11 @@ class FeatureFolder(Dataset):
         Returns:
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
-        fmap = from_numpy(load(self.samples[index]))
+        
         if self.transform:
             # print(self.transform(fmap).shape)  torch.Size([1, 256, 256, 256])
-            return self.transform(fmap)
-        return fmap
+            return self.transform(from_numpy(load(self.samples[index])))
+        return from_numpy(load(self.samples[index]))
         # img = Image.open(self.samples[index]).convert("RGB")
         # if self.transform:
         #     return self.transform(img)
@@ -221,4 +221,89 @@ class FeatureFolderGeneral(Dataset):
 
 
 
+# @register_dataset("FeatureFolderFname")
+# class FeatureFolderFname(Dataset):
+
+#     def __init__(self, root, split="test"):
+#         splitdir = Path(root) / split
+#         # if not splitdir.is_dir():
+#         #     raise RuntimeError(f'Invalid directory "{root}"')
+
+#         self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+#         # print("self.samples[0]: {}, {}".format(type(self.samples[0]), self.samples[0]))
+
+
+#     def __getitem__(self, index):
+#         """
+#         Args:
+#             index (int): Index
+
+#         Returns:
+#             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
+#         """
+#         x = from_numpy(load(self.samples[index]))
+#         filename = path.split(self.samples[index])
+#         if filename[1][1] == '3':
+#             x = interpolate(x, scale_factor=2, mode='bicubic')
+#         if filename[1][1] == '4':
+#             x = interpolate(x, scale_factor=4, mode='bicubic')
+#         if filename[1][1] == '5':
+#             x = interpolate(x, scale_factor=8, mode='bicubic')
+
+#         hpad, wpad = 256-x.shape[2], 256-x.shape[3]
+#         padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
+#         x = padding(x)
+#         # img = Image.open(self.samples[index]).convert("RGB")
+#         # if self.transform:
+#         #     return self.transform(img)
+#         # return img
+#         return x, int(filename[1][1])
+
+#     def __len__(self):
+#         return len(self.samples)
+
+
+
+
+# @register_dataset("YUVfolder")
+# class YUVfolder(Dataset):
+
+#     def __init__(self, root, split="test"):
+#         splitdir = Path(root) / split
+
+#         # if not splitdir.is_dir():
+#         #     raise RuntimeError(f'Invalid directory "{root}"')
+
+#         self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+#         # print("self.samples[0]: {}, {}".format(type(self.samples[0]), self.samples[0]))
+
+
+#     def __getitem__(self, index):
+#         """
+#         Args:
+#             index (int): Index
+
+#         Returns:
+#             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
+#         """
+#         x = from_numpy(load(self.samples[index]))
+#         filename = path.split(self.samples[index])
+#         if filename[1][1] == '3':
+#             x = interpolate(x, scale_factor=2, mode='bicubic')
+#         if filename[1][1] == '4':
+#             x = interpolate(x, scale_factor=4, mode='bicubic')
+#         if filename[1][1] == '5':
+#             x = interpolate(x, scale_factor=8, mode='bicubic')
+
+#         hpad, wpad = 256-x.shape[2], 256-x.shape[3]
+#         padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
+#         x = padding(x)
+#         # img = Image.open(self.samples[index]).convert("RGB")
+#         # if self.transform:
+#         #     return self.transform(img)
+#         # return img
+#         return x
+
+#     def __len__(self):
+#         return len(self.samples)
 
