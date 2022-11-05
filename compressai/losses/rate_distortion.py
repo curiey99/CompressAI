@@ -75,7 +75,8 @@ class WarpedRDLoss(nn.Module):
         )
         print("x_hat shape: {}".format(output["x_hat"].shape))
         if mse < 2:
-            mse = 1.5 + 20/(20+math.exp(13-5*mse))
+            #mse = 1.5011 + 20/(20+math.exp(13-5*mse))
+            mse = 1.80017092764013109005821404764048191+20/(80+math.exp(13-5*mse))
         out["mse_loss"] = self.mse(output["x_hat"], target)
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
 
