@@ -119,7 +119,7 @@ class FeatureFolder(Dataset):
         if not splitdir.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
 
-        self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] != '6')]
+        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
         # print("self.samples[0]: {}, {}".format(type(self.samples[0]), self.samples[0]))
 
         self.transform = transform
@@ -154,7 +154,7 @@ class FeatureFolderTest(Dataset):
         # if not splitdir.is_dir():
         #     raise RuntimeError(f'Invalid directory "{root}"')
 
-        self.samples = [f for f in Path(root).iterdir() if (f.is_file() and not f.startswith('p6'))]
+        self.samples = [f for f in Path(root).iterdir() if (f.is_file() and f.stem[1] != '6')]
         # print("self.samples[0]: {}, {}".format(type(self.samples[0]), self.samples[0]))
 
 
