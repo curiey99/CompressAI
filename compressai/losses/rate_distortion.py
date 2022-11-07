@@ -56,11 +56,11 @@ class RateDistortionLoss(nn.Module):
         )
         out["mse_loss"] = self.mse(output["x_hat"], target)
 
-        print("x_hat shape: {}".format(out["x_hat"].shape))
+        print("x_hat shape: {}".format(output["x_hat"].shape))
         print("target_size: {}".format(target.shape))
         print("mse type: {}".format(type(out["mse_loss"])))
 
-        squaredloss = torch.square(out["x_hat"]-target)
+        squaredloss = torch.square(output["x_hat"]-target)
         print("mse elementwise : {}\n{}".format(squaredloss.shape, squaredloss))
 
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
