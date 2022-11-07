@@ -43,6 +43,7 @@ class RateDistortionLoss(nn.Module):
         super().__init__()
         self.mse = nn.MSELoss()
         self.lmbda = lmbda
+        print(type(self.lmbda))
 
     def forward(self, output, target):
         N, _, H, W = target.size()
@@ -54,6 +55,14 @@ class RateDistortionLoss(nn.Module):
             for likelihoods in output["likelihoods"].values()
         )
         out["mse_loss"] = self.mse(output["x_hat"], target)
+
+        print("x_hat shape: {}".format(out["x_hat"].shape))
+        print("target_size: {}".format(target.shape))
+        print("mse type: {}".format(type(out["mse_loss"])))
+
+        squaredloss = torch.square(out["x_hat"]-target)
+        print("mse elementwise : {}\n{}".format(squaredloss.shape, squaredloss))
+
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
 
         return out
@@ -63,6 +72,7 @@ class WarpedRDLoss(nn.Module):
         super().__init__()
         self.mse = nn.MSELoss()
         self.lmbda = lmbda
+        
 
     def forward(self, output, target):
         N, _, H, W = target.size()
