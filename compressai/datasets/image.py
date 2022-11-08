@@ -197,7 +197,7 @@ class FeatureFolderScale(Dataset):
         Returns:
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
-        t = from_numpy(load(self.samples[index], pickle=True))
+        t = from_numpy(load(self.samples[index], allow_pickle=True))
 
         if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
             t = interpolate(t, scale_factor=2, mode='bicubic')
