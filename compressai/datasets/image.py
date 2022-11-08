@@ -31,7 +31,7 @@ from pathlib import Path
 
 from PIL import Image
 from torch.utils.data import Dataset
-from numpy import load
+import numpy as np
 from torch import from_numpy
 from os import path
 from compressai.registry import register_dataset
@@ -197,7 +197,7 @@ class FeatureFolderScale(Dataset):
         Returns:
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
-        t = from_numpy(load(self.samples[index], allow_pickle=True))
+        t = from_numpy(np.load(self.samples[index], allow_pickle=True))
 
         if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
             t = interpolate(t, scale_factor=2, mode='bicubic')
