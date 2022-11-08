@@ -198,7 +198,8 @@ class FeatureFolderScale(Dataset):
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
         t = from_numpy(np.load(self.samples[index], allow_pickle=True))
-
+        if t.shape[2] == 256:
+            return t
         if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
             t = interpolate(t, scale_factor=2, mode='bicubic')
         elif 32 < max(t.shape[2], t.shape[3]) <= 64:    # p4
@@ -208,6 +209,7 @@ class FeatureFolderScale(Dataset):
 
         hpad, wpad = 256-t.shape[2], 256-t.shape[3]
         padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
+        
         return padding(t)
         #print("x_hat: {}".format(x_hat[0, 1, 0, 0]))
 
@@ -240,7 +242,7 @@ class FeatureFolderGeneral(Dataset):
         Returns:
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
-        x = from_numpy(load(self.samples[index]))
+        x = from_numpy(np.load(self.samples[index]))
         filename = path.split(self.samples[index])
         if filename[1][1] == '3':
             x = interpolate(x, scale_factor=2, mode='bicubic')
