@@ -63,6 +63,12 @@ class RateDistortionLoss(nn.Module):
         squaredloss = torch.square(output["x_hat"]-target)
         print("mse elementwise : {}\n{}".format(squaredloss.shape, squaredloss))
 
+        # x_hat shape: torch.Size([4, 256, 256, 256])
+        # target_size: torch.Size([4, 256, 256, 256])
+        # mse type: <class 'torch.Tensor'>
+        # mse elementwise : torch.Size([4, 256, 256, 256])
+        # tensor([[[[5.6712e+00, 1.6933e+00, 2.1460e+00,  ..., 
+
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
 
         return out
@@ -83,7 +89,7 @@ class WarpedRDLoss(nn.Module):
             (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
             for likelihoods in output["likelihoods"].values()
         )
-        print("x_hat shape: {}".format(output["x_hat"].shape))
+        squaredloss = torch.square(output["x_hat"]-target)
         if mse < 2:
             #mse = 1.5011 + 20/(20+math.exp(13-5*mse))
             mse = 1.80017092764013109005821404764048191+20/(80+math.exp(13-5*mse))

@@ -339,7 +339,25 @@ class MeanScaleHyperprior(ScaleHyperprior):
 
     def __init__(self, N, M, **kwargs):
         super().__init__(N, M, **kwargs)
+        self.g_a = nn.Sequential(
+            conv(256, N),
+            GDN(N),
+            conv(N, N),
+            GDN(N),
+            conv(N, N),
+            GDN(N),
+            conv(N, M),
+        )
 
+        self.g_s = nn.Sequential(
+            deconv(M, N),
+            GDN(N, inverse=True),
+            deconv(N, N),
+            GDN(N, inverse=True),
+            deconv(N, N),
+            GDN(N, inverse=True),
+            deconv(N, 256),
+        )
         self.h_a = nn.Sequential(
             conv(M, N, stride=1, kernel_size=3),
             nn.LeakyReLU(inplace=True),
