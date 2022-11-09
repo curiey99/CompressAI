@@ -197,7 +197,8 @@ class FeatureFolderScale(Dataset):
         Returns:
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
-        t = from_numpy(np.load(self.samples[index], allow_pickle=True))
+        t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
+       # t = from_numpy(np.load(self.samples[index], allow_pickle=True))
         if t.shape[2] == 256:
             return t
         if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
