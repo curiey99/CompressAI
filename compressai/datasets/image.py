@@ -199,7 +199,7 @@ class FeatureFolderScale(Dataset):
         """
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
        # t = from_numpy(load(self.samples[index], allow_pickle=True))
-        if t.shape[2] == 256:
+        if t.shape[2] == 256 and t.shape[3] == 256:
             return t.float()
         if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
             t = interpolate(t, scale_factor=2, mode='bicubic')
