@@ -125,8 +125,8 @@ class FeatureFolder(Dataset):
         
         if self.transform:
             # print(self.transform(fmap).shape)  torch.Size([1, 256, 256, 256])
-            return self.transform(from_numpy(load(self.samples[index])))
-        return from_numpy(load(self.samples[index]))
+            return self.transform(from_numpy(np.load(self.samples[index])))
+        return from_numpy(np.load(self.samples[index]))
         # img = Image.open(self.samples[index]).convert("RGB")
         # if self.transform:
         #     return self.transform(img)
@@ -156,7 +156,7 @@ class FeatureFolderTest(Dataset):
         Returns:
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
-        fmap = from_numpy(load(self.samples[index]))
+        fmap = from_numpy(np.load(self.samples[index]))
         head_tail = path.split(self.samples[index])
         return fmap, head_tail[1]
         # img = Image.open(self.samples[index]).convert("RGB")
@@ -198,7 +198,7 @@ class FeatureFolderScale(Dataset):
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
-       # t = from_numpy(np.load(self.samples[index], allow_pickle=True))
+       # t = from_numpy(load(self.samples[index], allow_pickle=True))
         if t.shape[2] == 256:
             return t.float()
         if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
