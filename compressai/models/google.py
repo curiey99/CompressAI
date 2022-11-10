@@ -304,7 +304,7 @@ class ScaleHyperprior(CompressionModel):
 
     def compress(self, x):
         y = self.g_a(x)
-        z = self.h_a(torch.abs(y))
+        z = self.h_a(y)
 
         z_strings = self.entropy_bottleneck.compress(z)
         z_hat = self.entropy_bottleneck.decompress(z_strings, z.size()[-2:])
