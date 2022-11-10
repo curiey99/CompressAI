@@ -271,7 +271,7 @@ class FeatureFolderNorm(Dataset):
         hpad, wpad = 256-t.shape[2], 256-t.shape[3]
         padding = torch.nn.ReplicationPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
         
-        if t.max > 1 or t.min < 0:
+        if torch.max(t) > 1 or torch.min(t) < 0:
             print("!!!!!!!!!! ERROR !!!!!!!!")
             print(self.samples[index])
       
