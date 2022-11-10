@@ -410,7 +410,7 @@ class MeanScaleHyperprior(ScaleHyperprior):
         y_hat = self.gaussian_conditional.decompress(
             strings[0], indexes, means=means_hat
         )
-        x_hat = self.g_s(y_hat).clamp_(0, 1)
+        x_hat = self.g_s(y_hat)
         return {"x_hat": x_hat}
 
 
