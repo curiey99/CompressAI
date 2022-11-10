@@ -209,7 +209,7 @@ class FeatureFolderScale(Dataset):
             t = interpolate(t, scale_factor=8, mode='bicubic')
 
         hpad, wpad = 256-t.shape[2], 256-t.shape[3]
-        padding = torch.nn.ReflectionPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
+        padding = torch.nn.ReplicationPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
         
         return padding(t).float()
         #print("x_hat: {}".format(x_hat[0, 1, 0, 0]))
