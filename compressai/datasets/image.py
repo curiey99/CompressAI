@@ -223,6 +223,71 @@ class FeatureFolderScale(Dataset):
     def __len__(self):
         return len(self.samples)
 
+@register_dataset("FeatureFolderNorm")
+class FeatureFolderNorm(Dataset):
+    #FeatureMaps scaled & normalized
+    """Load an image folder database. Training and testing image samples
+    are respectively stored in separate directories:
+
+    Args:
+        root (string): root directory of the dataset
+        transform (callable, optional): a function or transform that takes in a
+            PIL image and returns a transformed version
+        split (string): split mode ('train' or 'val')
+    """
+
+    def __init__(self, root, split="train"):
+        splitdir = Path(root) / split
+
+        if not splitdir.is_dir():
+            raise RuntimeError(f'Invalid directory "{root}"')
+
+        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+        #self.norm = transforms.Normalize(mean, std)    
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
+        """
+        t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
+       # t = from_numpy(load(self.samples[index], allow_pickle=True))
+        t = torch.clamp(t, min=-26.426828384399414, max=28.397470474243164)
+        t = (t+26.426828384399414)/54.824298858642578
+        # normalize
+        # scaling
+        if t.shape[2] == 256 and t.shape[3] == 256:
+            return t.float()
+        if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
+            t = interpolate(t, scale_factor=2, mode='bicubic')
+        elif 32 < max(t.shape[2], t.shape[3]) <= 64:    # p4
+            t = interpolate(t, scale_factor=4, mode='bicubic')
+        elif max(t.shape[2], t.shape[3]) <= 32:         # p5
+            t = interpolate(t, scale_factor=8, mode='bicubic')
+
+        hpad, wpad = 256-t.shape[2], 256-t.shape[3]
+        padding = torch.nn.ReplicationPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
+        
+        if t.max > 1 or t.min < 0:
+            print("!!!!!!!!!! ERROR !!!!!!!!")
+            print(self.samples[index])
+      
+        return padding(t).float()
+        #print("x_hat: {}".format(x_hat[0, 1, 0, 0]))
+
+        #return from_numpy(load(self.samples[index]))
+        # img = Image.open(self.samples[index]).convert("RGB")
+        # if self.transform:
+        #     return self.transform(img)
+        # return img
+
+    def __len__(self):
+        return len(self.samples)
+
+
 @register_dataset("FeatureFolderGeneral")
 class FeatureFolderGeneral(Dataset):
 
@@ -352,3 +417,19 @@ class FeatureFolderGeneral(Dataset):
 #     def __len__(self):
 #         return len(self.samples)
 
+class UnNormalize(object):
+    def __init__(self, mean, std):
+        self.mean = mean
+        self.std = std
+
+    def __call__(self, tensor):
+        """
+        Args:
+            tensor (Tensor): Tensor image of size (C, H, W) to be normalized.
+        Returns:
+            Tensor: Normalized image.
+        """
+        for t, m, s in zip(tensor, self.mean, self.std):
+            t.mul_(s).add_(m)
+            # The normalize code -> t.sub_(m).div_(s)
+        return tensor
