@@ -324,6 +324,71 @@ class FeatureFolderNorm(Dataset):
         return len(self.samples)
 
 
+@register_dataset("FeatureFolderStd")
+class FeatureFolderStd(Dataset):
+    #FeatureMaps scaled & normalized
+    """Load an image folder database. Training and testing image samples
+    are respectively stored in separate directories:
+
+    Args:
+        root (string): root directory of the dataset
+        transform (callable, optional): a function or transform that takes in a
+            PIL image and returns a transformed version
+        split (string): split mode ('train' or 'val')
+    """
+
+    def __init__(self, root, split="train", mean_=-0.0961, std_=1.961142):
+        splitdir = Path(root) / split
+
+        if not splitdir.is_dir():
+            raise RuntimeError(f'Invalid directory "{root}"')
+
+        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+        #self.norm = transforms.Normalize(mean, std)    
+        self.transforms = transforms.Normalize(mean_, std_)
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
+        """
+        t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
+        t = self.transforms(t).clamp(0, 1)
+        # normalize
+        # scaling
+        if t.shape[2] == 256 and t.shape[3] == 256:
+            return t.float()
+        if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
+            t = interpolate(t, scale_factor=2, mode='bicubic')
+        elif 32 < max(t.shape[2], t.shape[3]) <= 64:    # p4
+            t = interpolate(t, scale_factor=4, mode='bicubic')
+        elif max(t.shape[2], t.shape[3]) <= 32:         # p5
+            t = interpolate(t, scale_factor=8, mode='bicubic')
+
+        hpad, wpad = 256-t.shape[2], 256-t.shape[3]
+        padding = torch.nn.ReplicationPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
+        
+        if torch.max(t) > 1 or torch.min(t) < 0:
+            print("!!!!!!!!!! ERROR !!!!!!!!")
+            print(self.samples[index])
+      
+        return padding(t).float()
+        #print("x_hat: {}".format(x_hat[0, 1, 0, 0]))
+
+        #return from_numpy(load(self.samples[index]))
+        # img = Image.open(self.samples[index]).convert("RGB")
+        # if self.transform:
+        #     return self.transform(img)
+        # return img
+
+    def __len__(self):
+        return len(self.samples)
+
+
+
 @register_dataset("FeatureFolderGeneral")
 class FeatureFolderGeneral(Dataset):
 
