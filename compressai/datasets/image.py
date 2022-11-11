@@ -313,7 +313,7 @@ class FeatureFolderNorm(Dataset):
             print("!!!!!!!!!! ERROR !!!!!!!!")
             print(self.samples[index])
       
-        return padding(t).float()
+        return padding(t).type(torch.FloatTensor)
         #print("x_hat: {}".format(x_hat[0, 1, 0, 0]))
 
         #return from_numpy(load(self.samples[index]))
