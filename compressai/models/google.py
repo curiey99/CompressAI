@@ -376,11 +376,21 @@ class MeanScaleHyperprior(ScaleHyperprior):
 
     def forward(self, x):
         y = self.g_a(x)
+        if True in torch.isnan(y):
+            print("y=g_a(x) has nan")
         z = self.h_a(y)
+        if True in torch.isnan(z):
+            print("z=h_a(y) has nan")
         z_hat, z_likelihoods = self.entropy_bottleneck(z)
         gaussian_params = self.h_s(z_hat)
         scales_hat, means_hat = gaussian_params.chunk(2, 1)
+        if True in torch.isnan(scales_hat):
+            print("scales_hat has nan")
+        if True in torch.isnan(means_hat):
+            print("means_hat has nan")
         y_hat, y_likelihoods = self.gaussian_conditional(y, scales_hat, means=means_hat)
+        if True in torch.isnan(y_hat):
+            print("y_hat has nan")
         x_hat = self.g_s(y_hat)
 
         return {
