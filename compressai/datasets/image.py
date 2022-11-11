@@ -167,6 +167,42 @@ class FeatureFolderTest(Dataset):
     def __len__(self):
         return len(self.samples)
 
+
+@register_dataset("FeatureFolderTestNorm")
+class FeatureFolderTestNorm(Dataset):
+
+    def __init__(self, root, split="test"):
+        # splitdir = Path(root) / split
+
+        # if not splitdir.is_dir():
+        #     raise RuntimeError(f'Invalid directory "{root}"')
+
+        self.samples = [f for f in Path(root).iterdir() if (f.is_file() and f.stem[1] != '6')]
+        # print("self.samples[0]: {}, {}".format(type(self.samples[0]), self.samples[0]))
+
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
+        """
+        t = from_numpy(np.load(self.samples[index]))
+        head_tail = path.split(self.samples[index])
+        t = torch.clamp(t, min=-26.426828384399414, max=28.397470474243164)
+        t = (t+26.426828384399414)/54.824298858642578
+        return t, head_tail[1]
+        # img = Image.open(self.samples[index]).convert("RGB")
+        # if self.transform:
+        #     return self.transform(img)
+        # return img
+
+    def __len__(self):
+        return len(self.samples)
+
+
 @register_dataset("FeatureFolderScale")
 class FeatureFolderScale(Dataset):
     """Load an image folder database. Training and testing image samples
