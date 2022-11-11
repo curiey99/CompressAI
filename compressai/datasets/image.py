@@ -357,7 +357,6 @@ class FeatureFolderStd(Dataset):
         """
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
         t = self.transforms(t)
-        t = torch.clamp(t, 0, 1)
         # normalize
         # scaling
         if t.shape[2] == 256 and t.shape[3] == 256:
@@ -372,6 +371,7 @@ class FeatureFolderStd(Dataset):
         hpad, wpad = 256-t.shape[2], 256-t.shape[3]
         padding = torch.nn.ReplicationPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
         
+        t = torch.clamp(t, min=0, max=1)
         if torch.max(t) > 1 or torch.min(t) < 0:
             print("!!!!!!!!!! ERROR !!!!!!!!")
             print(self.samples[index])
