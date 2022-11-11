@@ -356,7 +356,8 @@ class FeatureFolderStd(Dataset):
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
-        t = self.transforms(t).clamp(0, 1)
+        t = self.transforms(t)
+        t = torch.clamp(t, 0, 1)
         # normalize
         # scaling
         if t.shape[2] == 256 and t.shape[3] == 256:
