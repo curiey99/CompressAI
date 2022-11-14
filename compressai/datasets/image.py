@@ -261,6 +261,59 @@ class FeatureFolderScale(Dataset):
     def __len__(self):
         return len(self.samples)
 
+@register_dataset("FeatureFolderTiledNorm")
+class FeatureFolderTiledNorm(Dataset):
+    #FeatureMaps scaled & normalized
+    """Load an image folder database. Training and testing image samples
+    are respectively stored in separate directories:
+
+    Args:
+        root (string): root directory of the dataset
+        transform (callable, optional): a function or transform that takes in a
+            PIL image and returns a transformed version
+        split (string): split mode ('train' or 'val')
+    """
+
+    def __init__(self, root, split="train"):
+        splitdir = Path(root) / split
+
+        if not splitdir.is_dir():
+            raise RuntimeError(f'Invalid directory "{root}"')
+
+        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+        #self.norm = transforms.Normalize(mean, std)    
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
+        """
+        t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
+       # t = from_numpy(load(self.samples[index], allow_pickle=True))
+        t = torch.clamp(t, min=-26.426828384399414, max=28.397470474243164)
+        t = (t+26.426828384399414)/54.824298858642578
+        t = torch.clamp(t, 0, 1)
+        # normalize
+        # scaling
+        
+        return t
+        #print("x_hat: {}".format(x_hat[0, 1, 0, 0]))
+
+        #return from_numpy(load(self.samples[index]))
+        # img = Image.open(self.samples[index]).convert("RGB")
+        # if self.transform:
+        #     return self.transform(img)
+        # return img
+
+    def __len__(self):
+        return len(self.samples)
+
+
+
+
 @register_dataset("FeatureFolderNorm")
 class FeatureFolderNorm(Dataset):
     #FeatureMaps scaled & normalized
