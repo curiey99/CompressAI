@@ -287,6 +287,7 @@ class FeatureFolderTiledNorm(Dataset):
         
         
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float')).unsqueeze(0)
+        print(t.shape)
        # t = from_numpy(load(self.samples[index], allow_pickle=True))
         if self.samples[index].stem[1] == '3':   # p3
             t = interpolate(t, scale_factor=2, mode='bicubic')
