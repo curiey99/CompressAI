@@ -289,8 +289,8 @@ class FeatureFolderTiledNorm(Dataset):
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float')).unsqueeze(0).unsqueeze(0)
         
        # t = from_numpy(load(self.samples[index], allow_pickle=True))
-        # if self.samples[index].stem[1] == '3':   # p3
-        #     t = interpolate(t, scale_factor=2, mode='bicubic')
+        if self.samples[index].stem[1] == '2':   # p2
+            t = interpolate(t, scale_factor=0.5, mode='bicubic')
         # elif self.samples[index].stem[1] == '4':   # p4
         #     t = interpolate(t, scale_factor=4, mode='bicubic')
         # elif self.samples[index].stem[1] == '5'   :     # p5
