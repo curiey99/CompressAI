@@ -301,7 +301,7 @@ class FeatureFolderTiledNorm(Dataset):
         # normalize
         # scaling
         
-        return t
+        return t.float()
         #print("x_hat: {}".format(x_hat[0, 1, 0, 0]))
 
         #return from_numpy(load(self.samples[index]))
