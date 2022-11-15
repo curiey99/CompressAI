@@ -236,12 +236,12 @@ class FeatureFolderScale(Dataset):
         """
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float')).unsqueeze(0)
        # t = from_numpy(load(self.samples[index], allow_pickle=True))
-        if self.samples[index].stem[1] == '3':   # p2
-            t = interpolate(t, scale_factor=2, mode='bicubic')
-        elif self.samples[index].stem[1] == '4':   # p4
-            t = interpolate(t, scale_factor=4, mode='bicubic')
-        elif self.samples[index].stem[1] == '5'   :     # p5
-            t = interpolate(t, scale_factor=8, mode='bicubic')
+        if self.samples[index].stem[1] == '2':   # p2
+            t = interpolate(t, scale_factor=0.5, mode='bicubic')
+        # elif self.samples[index].stem[1] == '4':   # p4
+        #     t = interpolate(t, scale_factor=4, mode='bicubic')
+        # elif self.samples[index].stem[1] == '5'   :     # p5
+        #     t = interpolate(t, scale_factor=8, mode='bicubic')
         # if t.shape[2] == 256 and t.shape[3] == 256:
         #     return t.float()
         # if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
