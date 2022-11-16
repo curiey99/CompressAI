@@ -81,7 +81,7 @@ class ImageFolder(Dataset):
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
         img = Image.open(self.samples[index]).convert("RGB")
-        print(img)
+        # print(img)
         if self.transform:
             return self.transform(img)
         return img
@@ -178,7 +178,7 @@ class FeatureFolderTest4c(Dataset):
         # if not splitdir.is_dir():
         #     raise RuntimeError(f'Invalid directory "{root}"')
 
-        self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] != '6')]
+        self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] == '3')]
         # print("self.samples[0]: {}, {}".format(type(self.samples[0]), self.samples[0]))
       
 
