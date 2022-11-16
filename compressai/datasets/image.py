@@ -180,7 +180,7 @@ class FeatureFolderTest4c(Dataset):
 
         self.samples = [f for f in Path(root).iterdir() if (f.is_file() and f.stem[1] != '6')]
         # print("self.samples[0]: {}, {}".format(type(self.samples[0]), self.samples[0]))
-
+        print(len(self.samples))
 
     def __getitem__(self, index):
         """
@@ -194,6 +194,7 @@ class FeatureFolderTest4c(Dataset):
         if self.samples[index].stem[1] == '2':   # p2
             t = interpolate(t, scale_factor=0.5, mode='bicubic')
         head_tail = path.split(self.samples[index])
+        print(head_tail[1])
         return t, head_tail[1]
         # img = Image.open(self.samples[index]).convert("RGB")
         # if self.transform:
