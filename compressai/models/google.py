@@ -413,7 +413,7 @@ class MeanScaleHyperprior(ScaleHyperprior):
         x_hat = self.g_s(y_hat)
        # x_hat = torch.clamp(x_hat, min=0, max=1)
         
-        x_hat = (x_hat * 54.824298858642578) - 26.426828384399414
+        # x_hat = (x_hat * 54.824298858642578) - 26.426828384399414
         return {"x_hat": x_hat}
 
 
