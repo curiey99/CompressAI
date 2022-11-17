@@ -396,18 +396,18 @@ class FeatureFolderNorm(Dataset):
         elif max(t.shape[2], t.shape[3]) <= 32:         # p5
             t = interpolate(t, scale_factor=8, mode='bicubic')
 
-        hpad, wpad = 256-t.shape[2], 256-t.shape[3]
-        padding = torch.nn.ReplicationPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
+        # hpad, wpad = 256-t.shape[2], 256-t.shape[3]
+        # padding = torch.nn.ReplicationPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
         
-        # if torch.max(t) > 1 or torch.min(t) < 0:
-        #     print("!!!!!!!!!! ERROR !!!!!!!!")
-        #     print(self.samples[index])
+        # # if torch.max(t) > 1 or torch.min(t) < 0:
+        # #     print("!!!!!!!!!! ERROR !!!!!!!!")
+        # #     print(self.samples[index])
       
-        #return padding(t).type(torch.FloatTensor)
+        # #return padding(t).type(torch.FloatTensor)
         head_tail = path.split(self.samples[index])
-        t = padding(t).type(torch.FloatTensor)
+        # t = padding(t).type(torch.FloatTensor)
         # print(head_tail[1])
-        return t, head_tail[1]
+        return t.type(torch.FloatTensor), head_tail[1]
         #print("x_hat: {}".format(x_hat[0, 1, 0, 0]))
 
         #return from_numpy(load(self.samples[index]))
