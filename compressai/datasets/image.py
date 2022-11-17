@@ -388,8 +388,7 @@ class FeatureFolderNorm(Dataset):
         # t = (t+26.426828384399414)/54.824298858642578
         # normalize
         # scaling
-        if t.shape[2] == 256 and t.shape[3] == 256:
-            return t.float()
+        
         if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
             t = interpolate(t, scale_factor=2, mode='bicubic')
         elif 32 < max(t.shape[2], t.shape[3]) <= 64:    # p4
