@@ -406,6 +406,7 @@ class FeatureFolderNorm(Dataset):
       
         #return padding(t).type(torch.FloatTensor)
         head_tail = path.split(self.samples[index])
+        print(head_tail[1])
         return padding(t).type(torch.FloatTensor), head_tail[1]
         #print("x_hat: {}".format(x_hat[0, 1, 0, 0]))
 
