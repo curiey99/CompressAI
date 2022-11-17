@@ -194,7 +194,9 @@ class FeatureFolderTest4c(Dataset):
         if self.samples[index].stem[1] == '2':   # p2
             t = interpolate(t, scale_factor=0.5, mode='bicubic')
         head_tail = path.split(self.samples[index])
-       # print(head_tail[1])
+        # t = torch.clamp(t, min=-26.426828384399414, max=28.397470474243164)
+    #     t = (t+26.426828384399414)/54.824298858642578
+    #    # print(head_tail[1])
         return t, head_tail[1]
         # img = Image.open(self.samples[index]).convert("RGB")
         # if self.transform:
@@ -227,8 +229,7 @@ class FeatureFolderTestNorm(Dataset):
         """
         t = from_numpy(np.load(self.samples[index]))
         head_tail = path.split(self.samples[index])
-        t = torch.clamp(t, min=-26.426828384399414, max=28.397470474243164)
-        t = (t+26.426828384399414)/54.824298858642578
+        
         return t, head_tail[1]
         # img = Image.open(self.samples[index]).convert("RGB")
         # if self.transform:
@@ -285,7 +286,7 @@ class FeatureFolderScale(Dataset):
         #     t = interpolate(t, scale_factor=4, mode='bicubic')
         # elif max(t.shape[2], t.shape[3]) <= 32:         # p5
         #     t = interpolate(t, scale_factor=8, mode='bicubic')
-
+        
         # hpad, wpad = 256-t.shape[2], 256-t.shape[3]
         # padding = torch.nn.ReplicationPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
         
