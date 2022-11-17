@@ -370,12 +370,8 @@ class FeatureFolderNorm(Dataset):
     """
 
     def __init__(self, root, split="train"):
-        splitdir = Path(root) / split
-
-        if not splitdir.is_dir():
-            raise RuntimeError(f'Invalid directory "{root}"')
-
-        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+        
+        self.samples = [f for f in Path(root).iterdir() if f.is_file()]
         #self.norm = transforms.Normalize(mean, std)    
 
     def __getitem__(self, index):
@@ -388,8 +384,8 @@ class FeatureFolderNorm(Dataset):
         """
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
        # t = from_numpy(load(self.samples[index], allow_pickle=True))
-        t = torch.clamp(t, min=-26.426828384399414, max=28.397470474243164)
-        t = (t+26.426828384399414)/54.824298858642578
+        # t = torch.clamp(t, min=-26.426828384399414, max=28.397470474243164)
+        # t = (t+26.426828384399414)/54.824298858642578
         # normalize
         # scaling
         if t.shape[2] == 256 and t.shape[3] == 256:
