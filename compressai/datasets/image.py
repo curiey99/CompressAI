@@ -389,12 +389,12 @@ class FeatureFolderNorm(Dataset):
         # normalize
         # scaling
         
-        if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
-            t = interpolate(t, scale_factor=2, mode='bicubic')
-        elif 32 < max(t.shape[2], t.shape[3]) <= 64:    # p4
-            t = interpolate(t, scale_factor=4, mode='bicubic')
-        elif max(t.shape[2], t.shape[3]) <= 32:         # p5
-            t = interpolate(t, scale_factor=8, mode='bicubic')
+        # if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
+        #     t = interpolate(t, scale_factor=2, mode='bicubic')
+        # elif 32 < max(t.shape[2], t.shape[3]) <= 64:    # p4
+        #     t = interpolate(t, scale_factor=4, mode='bicubic')
+        # elif max(t.shape[2], t.shape[3]) <= 32:         # p5
+        #     t = interpolate(t, scale_factor=8, mode='bicubic')
 
         # hpad, wpad = 256-t.shape[2], 256-t.shape[3]
         # padding = torch.nn.ReplicationPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
