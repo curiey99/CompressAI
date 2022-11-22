@@ -282,7 +282,7 @@ class FeatureFolder256_to4(Dataset):
         hpad, wpad = 256-t.shape[2], 256-t.shape[3]
         padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
         # 1, 256, 256, 256
-        
+        t = padding(t)
         t = tiling.tile_256_to_4_torch(t.squeeze(0)).unsqueeze(0) # 1, 4, 16h, 16w
         if self.samples[index].stem[1] == '2':   # p2
             t = interpolate(t, scale_factor=0.5, mode='bicubic')
