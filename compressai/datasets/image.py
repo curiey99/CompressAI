@@ -287,7 +287,7 @@ class FeatureFolder256_to4(Dataset):
         if self.samples[index].stem[1] == '2':   # p2
             t = interpolate(t, scale_factor=0.5, mode='bicubic')
         
-        return t.float()
+        return t.float(), path.split(self.samples[index])[1]
         #print("x_hat: {}".format(x_hat[0, 1, 0, 0]))
 
         #return from_numpy(load(self.samples[index]))
