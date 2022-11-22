@@ -292,7 +292,7 @@ class FeatureFolder256_to4(Dataset):
         # 1, 256, 256, 256
         t = padding(t)
         t = tiling.tile_256_to_4_torch(t.squeeze(0)).unsqueeze(0) # 1, 4, 16h, 16w
-        print("feature scale: {}".format(self.samples[index].stem[1]))
+        # print("feature scale: {}".format(self.samples[index].stem[1]))
         if self.samples[index].stem[1] == '2':   # p2
             t = interpolate(t, scale_factor=0.5, mode='bicubic')
         
