@@ -37,6 +37,7 @@ from .image import FeatureFolderTestNorm
 from .image import FeatureFolderStd
 from .image import FeatureFolderTiledNorm
 from .image import FeatureFolderTest4c
+from .image import FeatureFolder256_to4
 from .pregenerated import PreGeneratedMemmapDataset
 from .rawvideo import *
 from .video import VideoFolder
@@ -55,5 +56,6 @@ __all__ = [
     "FeatureFolderTestNorm"
     "FeatureFolderStd",
     "FeatureFolderTiledNorm",
-    "FeatureFolderTest4c"
+    "FeatureFolderTest4c", 
+    "FeatureFolder256_to4"
 ]
