@@ -28,15 +28,11 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from .image import ImageFolder
-from .image import FeatureFolder
 from .image import FeatureFolderTest
 from .image import FeatureFolderGeneral
 from .image import FeatureFolderScale
 from .image import FeatureFolderNorm
-from .image import FeatureFolderTestNorm
-from .image import FeatureFolderStd
 from .image import FeatureFolderTiledNorm
-from .image import FeatureFolderTest4c
 from .image import FeatureFolder256_to4
 from .pregenerated import PreGeneratedMemmapDataset
 from .rawvideo import *
@@ -45,7 +41,6 @@ from .vimeo90k import Vimeo90kDataset
 
 __all__ = [
     "ImageFolder",
-    "FeatureFolder",
     "PreGeneratedMemmapDataset",
     "VideoFolder",
     "Vimeo90kDataset",
@@ -53,9 +48,6 @@ __all__ = [
     "FeatureFolderGeneral",
     "FeatureFolderScale",
     "FeatureFolderNorm",
-    "FeatureFolderTestNorm"
-    "FeatureFolderStd",
     "FeatureFolderTiledNorm",
-    "FeatureFolderTest4c", 
     "FeatureFolder256_to4"
 ]
