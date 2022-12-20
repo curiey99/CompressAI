@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022, InterDigital Communications, Inc
+# Copyright (c) 2021-2022, InterDigital Communications, Inc, Curie Yoon
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ class RateDistortionLoss(nn.Module):
         )
         out["mse_loss"] = self.mse(output["x_hat"], target)
 
-      
+        print("MSE LOSS: {}\n{}".format(out["mse_loss"].shape, out["mse_loss"]))
 
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
 
