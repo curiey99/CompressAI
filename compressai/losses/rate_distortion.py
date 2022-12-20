@@ -56,11 +56,11 @@ class RateDistortionLoss(nn.Module):
         
         mse_element = torch.square(output["x_hat"]-target)
         lambda_element = torch.sigmoid((mse_element-1)/0.05)
-        
-        out["mse_loss"] = self.mse(output["x_hat"], target)
-
-        out["loss"] = self.lmbda * lambda_element * mse_element + out["bpp_loss"]
-        # out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
+        mse_element = mse_element * lambda_element
+        # out["mse_loss"] = self.mse(output["x_hat"], target)
+        out["mse_loss"] = torch.mean(mse_element)
+        # out["loss"] = self.lmbda * lambda_element * mse_element + out["bpp_loss"]
+        out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
 
         return out
 
