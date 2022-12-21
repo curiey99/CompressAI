@@ -198,7 +198,9 @@ class FeatureFolderScale(Dataset):
         Returns:
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
-        t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float')).unsqueeze(0)
+        t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
+        if t.dim() == 3:
+            t = t.unsqueeze(0)
         if self.samples[index].stem[1] == '2':   # p2
             t = interpolate(t, scale_factor=0.5, mode='bicubic')
         
