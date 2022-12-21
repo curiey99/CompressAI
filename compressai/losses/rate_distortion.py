@@ -74,6 +74,8 @@ class RateDistortionLoss(nn.Module):
             y = torch.flatten(lambda_element)
             x = x.detach().cpu().numpy()
             y = y.detach().cpu().numpy()
+            print(current_time)
+            print("{}, {}".format(x.shape, y.shape))
             bins = np.linspace(0, 5, 3000)
             plt.hist(x, bins, alpha=0.5, label='MSE')
             plt.hist(y, bins, alpha=0.5, label='lambda')
