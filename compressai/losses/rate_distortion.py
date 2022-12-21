@@ -64,20 +64,23 @@ class RateDistortionLoss(nn.Module):
         out["mse_loss"] = torch.mean(mse_element)
         # out["loss"] = self.lmbda * lambda_element * mse_element + out["bpp_loss"]
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
-        x = torch.flatten(mse_element)
-        y = torch.flatten(lambda_element)
-        x = x.detach().cpu().numpy()
-        y = y.detach().cpu().numpy()
-        bins = np.linspace(0, 5, 3000)
-        plt.hist(x, bins, alpha=0.5, label='MSE')
-        plt.hist(y, bins, alpha=0.5, label='lambda')
-        plt.legend(loc='upper right')
+
         now = datetime.now()
 
         current_time =  now.strftime("%Y-%m-%d_%H;%M;%S")
-        plt.title(current_time)
-        # plt.savefig('/home/porsche/curie/neural-featuremap-compressor/viz/{}.png'.format(current_time))
-        plt.savefig('./{}.png'.format(current_time))
+        if int(now.strftime("%M")) % 10 == 0:
+
+            x = torch.flatten(mse_element)
+            y = torch.flatten(lambda_element)
+            x = x.detach().cpu().numpy()
+            y = y.detach().cpu().numpy()
+            bins = np.linspace(0, 5, 3000)
+            plt.hist(x, bins, alpha=0.5, label='MSE')
+            plt.hist(y, bins, alpha=0.5, label='lambda')
+            plt.legend(loc='upper right')
+            plt.title(current_time)
+            # plt.savefig('/home/porsche/curie/neural-featuremap-compressor/viz/{}.png'.format(current_time))
+            plt.savefig('./{}.png'.format(current_time))
         return out
 
 class WarpedRDLoss(nn.Module):
