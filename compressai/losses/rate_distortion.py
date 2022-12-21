@@ -77,7 +77,7 @@ class RateDistortionLoss(nn.Module):
         current_time =  now.strftime("%Y-%m-%d_%H;%M;%S")
         plt.title(current_time)
         # plt.savefig('/home/porsche/curie/neural-featuremap-compressor/viz/{}.png'.format(current_time))
-        plt.save('./{}.png'.format(current_time))
+        plt.savefig('./{}.png'.format(current_time))
         return out
 
 class WarpedRDLoss(nn.Module):
