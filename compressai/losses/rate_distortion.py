@@ -66,7 +66,6 @@ class RateDistortionLoss(nn.Module):
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
         
         bins = np.linspace(0, 5, 3000)
-        print("mse: {}".format(np.mean(x-y)**2))
         plt.hist(torch.flatten(mse_element), bins, alpha=0.5, label='MSE')
         plt.hist(torch.flatten(lambda_element), bins, alpha=0.5, label='lambda')
         plt.legend(loc='upper right')
