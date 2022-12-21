@@ -188,7 +188,7 @@ class FeatureFolderScale(Dataset):
         if not splitdir.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
 
-        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+        self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] != '6')]
 
     def __getitem__(self, index):
         """
