@@ -35,6 +35,8 @@ import torch.nn as nn
 from compressai.registry import register_criterion
 from datetime import datetime
 import matplotlib.pyplot as plt
+import numpy as np
+
 @register_criterion("RateDistortionLoss")
 class RateDistortionLoss(nn.Module):
     """Custom rate distortion loss with a Lagrangian parameter."""
