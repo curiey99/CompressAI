@@ -33,8 +33,8 @@ import torch
 import torch.nn as nn
 
 from compressai.registry import register_criterion
-
-
+from datetime import datetime
+import matplotlib.pyplot as plt
 @register_criterion("RateDistortionLoss")
 class RateDistortionLoss(nn.Module):
     """Custom rate distortion loss with a Lagrangian parameter."""
@@ -62,6 +62,17 @@ class RateDistortionLoss(nn.Module):
         out["mse_loss"] = torch.mean(mse_element)
         # out["loss"] = self.lmbda * lambda_element * mse_element + out["bpp_loss"]
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
+        
+        bins = np.linspace(0, 5, 3000)
+        print("mse: {}".format(np.mean(x-y)**2))
+        plt.hist(torch.flatten(mse_element), bins, alpha=0.5, label='MSE')
+        plt.hist(torch.flatten(lambda_element), bins, alpha=0.5, label='lambda')
+        plt.legend(loc='upper right')
+        now = datetime.now()
+
+        current_time =  now.strftime("%Y-%m-%d_%H;%M;%S")
+        plt.title(current_time)
+        plt.savefig('/home/porsche/curie/neural-featuremap-compressor/viz/{}.png'.format(current_time))
 
         return out
 
