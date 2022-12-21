@@ -68,7 +68,7 @@ class RateDistortionLoss(nn.Module):
         now = datetime.now()
 
         current_time =  now.strftime("%Y-%m-%d_%H;%M;%S")
-        if int(now.strftime("%M")) % 10 == 0:
+        if int(now.strftime("%M")) % 10 == 0 and int(now.strftime("%S")) % 60 == 0:
 
             x = torch.flatten(mse_element)
             y = torch.flatten(lambda_element)
