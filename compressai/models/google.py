@@ -382,7 +382,7 @@ class MeanScaleHyperprior(ScaleHyperprior):
         scales_hat, means_hat = gaussian_params.chunk(2, 1)
         y_hat, y_likelihoods = self.gaussian_conditional(y, scales_hat, means=means_hat)
         x_hat = self.g_s(y_hat)
-        print(x.shape, x.device)
+        # print(x.shape, x.device)
         return {
             "x_hat": x_hat,
             "likelihoods": {"y": y_likelihoods, "z": z_likelihoods},

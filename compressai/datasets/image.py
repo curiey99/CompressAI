@@ -182,13 +182,14 @@ class FeatureFolderScale(Dataset):
         split (string): split mode ('train' or 'val')
     """
 
-    def __init__(self, root, split="train"):
+    def __init__(self, root, split="train", downsize=False):
         splitdir = Path(root) / split
 
         if not splitdir.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
 
         self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] != '6')]
+        self.downsize = downsize
 
     def __getitem__(self, index):
         """
@@ -201,9 +202,17 @@ class FeatureFolderScale(Dataset):
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
         if t.dim() == 3:
             t = t.unsqueeze(0)
-        if self.samples[index].stem[1] == '2':   # p2
-            t = interpolate(t, scale_factor=0.5, mode='bicubic')
+        if self.downsize:
+            if self.samples[index].stem[1] == '2':   # p2
+                t = interpolate(t, scale_factor=0.25, mode='bicubic')
+            elif self.samples[index].stem[1] == '3':   # p2
+                t = interpolate(t, scale_factor=0.5, mode='bicubic')
+        else:
+            if self.samples[index].stem[1] == '2':   # p2
+                t = interpolate(t, scale_factor=0.5, mode='bicubic')
+            
         
+
         return t.float()
 
     def __len__(self):
