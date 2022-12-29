@@ -40,6 +40,7 @@ from torch.nn.functional import interpolate
 import torch
 import math
 from compressai.datasets import tiling
+import random
 
 @register_dataset("ImageFolder")
 class ImageFolder(Dataset):
@@ -182,7 +183,7 @@ class FeatureFolderScale(Dataset):
         split (string): split mode ('train' or 'val')
     """
 
-    def __init__(self, root, split="train", downsize=False):
+    def __init__(self, root, split="train", downsize=False, crop=False):
         splitdir = Path(root) / split
 
         if not splitdir.is_dir():
@@ -190,6 +191,7 @@ class FeatureFolderScale(Dataset):
 
         self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] != '6')]
         self.downsize = downsize
+        self.crop = crop
 
     def __getitem__(self, index):
         """
@@ -202,6 +204,14 @@ class FeatureFolderScale(Dataset):
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
         if t.dim() == 3:
             t = t.unsqueeze(0)
+
+        if self.crop:
+            tt = torch.empty((1, 4, 32, 32))
+            r = random.randint(0, t.shape[2]-33)
+            o = random.randint(0, t.shape[2]-33)
+            tt = t[:, :, r:r+32, o:o+32]
+            return tt.float()
+
         if self.downsize:
             if self.samples[index].stem[1] == '2':   # p2
                 t = interpolate(t, scale_factor=0.25, mode='bicubic')
