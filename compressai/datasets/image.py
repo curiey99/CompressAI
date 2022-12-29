@@ -206,10 +206,10 @@ class FeatureFolderScale(Dataset):
             t = t.unsqueeze(0)
 
         if self.crop:
-            tt = torch.empty((1, 4, 32, 32))
-            r = random.randint(0, t.shape[2]-33)
-            o = random.randint(0, t.shape[2]-33)
-            tt = t[:, :, r:r+32, o:o+32]
+            tt = torch.empty((1, 4, 64, 64))
+            r = random.randint(0, t.shape[2]-65)
+            o = random.randint(0, t.shape[2]-65)
+            tt = t[:, :, r:r+64, o:o+64]
             # print("r={}, o={}, tt={}".format(r,o,tt.shape))
             return tt.float()
 
