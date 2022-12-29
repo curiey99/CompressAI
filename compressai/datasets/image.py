@@ -210,6 +210,7 @@ class FeatureFolderScale(Dataset):
             r = random.randint(0, t.shape[2]-33)
             o = random.randint(0, t.shape[2]-33)
             tt = t[:, :, r:r+32, o:o+32]
+            print("r={}, o={}, tt={}".format(r,o,tt.shape))
             return tt.float()
 
         if self.downsize:
