@@ -287,12 +287,8 @@ class FeatureFolderNorm(Dataset):
     """
 
     def __init__(self, root, split="train"):
-        splitdir = Path(root) / split
-
-        if not splitdir.is_dir():
-            raise RuntimeError(f'Invalid directory "{root}"')
-
-        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+        
+        self.samples = [f for f in Path(root).iterdir() if f.is_file()]
         #self.norm = transforms.Normalize(mean, std)    
 
     def __getitem__(self, index):
@@ -305,27 +301,30 @@ class FeatureFolderNorm(Dataset):
         """
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
        # t = from_numpy(load(self.samples[index], allow_pickle=True))
-        t = torch.clamp(t, min=-26.426828384399414, max=28.397470474243164)
-        t = (t+26.426828384399414)/54.824298858642578
+        # t = torch.clamp(t, min=-26.426828384399414, max=28.397470474243164)
+        # t = (t+26.426828384399414)/54.824298858642578
         # normalize
         # scaling
-        if t.shape[2] == 256 and t.shape[3] == 256:
-            return t.float()
-        if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
-            t = interpolate(t, scale_factor=2, mode='bicubic')
-        elif 32 < max(t.shape[2], t.shape[3]) <= 64:    # p4
-            t = interpolate(t, scale_factor=4, mode='bicubic')
-        elif max(t.shape[2], t.shape[3]) <= 32:         # p5
-            t = interpolate(t, scale_factor=8, mode='bicubic')
-
-        hpad, wpad = 256-t.shape[2], 256-t.shape[3]
-        padding = torch.nn.ReplicationPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
         
-        if torch.max(t) > 1 or torch.min(t) < 0:
-            print("!!!!!!!!!! ERROR !!!!!!!!")
-            print(self.samples[index])
+        # if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
+        #     t = interpolate(t, scale_factor=2, mode='bicubic')
+        # elif 32 < max(t.shape[2], t.shape[3]) <= 64:    # p4
+        #     t = interpolate(t, scale_factor=4, mode='bicubic')
+        # elif max(t.shape[2], t.shape[3]) <= 32:         # p5
+        #     t = interpolate(t, scale_factor=8, mode='bicubic')
+
+        # hpad, wpad = 256-t.shape[2], 256-t.shape[3]
+        # padding = torch.nn.ReplicationPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
+        
+        # # if torch.max(t) > 1 or torch.min(t) < 0:
+        # #     print("!!!!!!!!!! ERROR !!!!!!!!")
+        # #     print(self.samples[index])
       
-        return padding(t).type(torch.FloatTensor)
+        # #return padding(t).type(torch.FloatTensor)
+        head_tail = path.split(self.samples[index])
+        # t = padding(t).type(torch.FloatTensor)
+        # print(head_tail[1])
+        return t.type(torch.FloatTensor), head_tail[1]
         #print("x_hat: {}".format(x_hat[0, 1, 0, 0]))
 
         #return from_numpy(load(self.samples[index]))
