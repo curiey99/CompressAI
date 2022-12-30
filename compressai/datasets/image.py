@@ -183,7 +183,7 @@ class FeatureFolderScale(Dataset):
         split (string): split mode ('train' or 'val')
     """
 
-    def __init__(self, root, split="train", downsize=False, crop=False):
+    def __init__(self, root, split="train", downsize=False, crop=False, cropsize=64):
         splitdir = Path(root) / split
 
         if not splitdir.is_dir():
@@ -192,6 +192,7 @@ class FeatureFolderScale(Dataset):
         self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] != '6')]
         self.downsize = downsize
         self.crop = crop
+        self.cropsize = cropsize
 
     def __getitem__(self, index):
         """
@@ -206,10 +207,10 @@ class FeatureFolderScale(Dataset):
             t = t.unsqueeze(0)
 
         if self.crop:
-            tt = torch.empty((1, 4, 64, 64))
-            r = random.randint(0, t.shape[2]-65)
-            o = random.randint(0, t.shape[2]-65)
-            tt = t[:, :, r:r+64, o:o+64]
+            tt = torch.empty((1, 4, self.cropsize, self.cropsize))
+            r = random.randint(0, t.shape[2]-self.cropsize-1)
+            o = random.randint(0, t.shape[2]-self.cropsize-1)
+            tt = t[:, :, r:r+self.cropsize, o:o+self.cropsize]
             # print("r={}, o={}, tt={}".format(r,o,tt.shape))
             return tt.float()
 
