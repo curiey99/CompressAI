@@ -59,38 +59,21 @@ class RateDistortionLoss(nn.Module):
         mse_element = torch.square(output["x_hat"]-target)
         out["lambda_element"] = torch.sigmoid((mse_element-1)/0.05)
         out["mse_element"] = mse_element * out["lambda_element"]
-        # out["mse_loss"] = self.mse(out["lambda_element"]["x_hat"], target)
         out["lambda"] = torch.mean(out["lambda_element"])
         out["mse_loss"] = torch.mean(out["mse_element"])
-        # out["loss"] = self.lmbda * lambda_element * mse_element + out["bpp_loss"]
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
 
-        # now = datetime.now()
-
-        # current_time =  now.strftime("%Y-%m-%d_%H;%M;%S")
-        # if int(now.strftime("%M")) % 10 == 0 and int(now.strftime("%S")) % 60 == 0:
-
-        #     x = torch.flatten(mse_element)
-        #     y = torch.flatten(lambda_element)
-        #     x = x.detach().cpu().numpy()
-        #     y = y.detach().cpu().numpy()
-        #     print(current_time)
-        #     print("{}, {}".format(x.shape, y.shape))
-        #     bins = np.linspace(0, 5, 3000)
-        #     plt.hist(x, bins, alpha=0.5, label='MSE')
-        #     plt.hist(y, bins, alpha=0.5, label='lambda')
-        #     plt.legend(loc='upper right')
-        #     plt.title(current_time)
-        #     # plt.savefig('/home/porsche/curie/neural-featuremap-compressor/viz/{}.png'.format(current_time))
-        #     plt.savefig('./{}.png'.format(current_time))
         return out
 
 class WarpedRDLoss(nn.Module):
-    def __init__(self, lmbda=1e-2):
+    def __init__(self, lmbda=1e-2, alpha=1, beta=0.05):
         super().__init__()
         self.mse = nn.MSELoss()
         self.lmbda = lmbda
+        self.alpha = alpha
+        self.beta = beta
         
+
 
     def forward(self, output, target):
         N, _, H, W = target.size()
@@ -101,28 +84,12 @@ class WarpedRDLoss(nn.Module):
             (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
             for likelihoods in output["likelihoods"].values()
         )
-
-        #  print("x_hat shape: {}".format(output["x_hat"].shape))
-       # print("target_size: {}".format(target.shape))
-       # print("mse type: {}".format(type(out["mse_loss"])))
-
-       # squaredloss = torch.square(output["x_hat"]-target)
-       # print("mse elementwise : {}\n{}".format(squaredloss.shape, squaredloss))
-        # 3.4888e-04, 2.3032e-04]]]], device='cuda:0', grad_fn=<PowBackward0>)
-        # x_hat shape: torch.Size([4, 256, 256, 256])
-        # target_size: torch.Size([4, 256, 256, 256])
-        # mse type: <class 'torch.Tensor'>
-        # mse elementwise : torch.Size([4, 256, 256, 256])
-        # x_hat shape: torch.Size([4, 256, 256, 256])
-        # target_size: torch.Size([4, 256, 256, 256])
-        # mse type: <class 'torch.Tensor'>
-        # mse elementwise : torch.Size([4, 256, 256, 256])
-        # tensor([[[[5.6712e+00, 1.6933e+00, 2.1460e+00,  ..., 
-        squaredloss = self.mse(output["x_hat"], target)#torch.square(output["x_hat"]-target)
-        # if mse < 2:
-        #     #mse = 1.5011 + 20/(20+math.exp(13-5*mse))
-        #     # mse = 1.80017092764013109005821404764048191+20/(80+math.exp(13-5*mse))
-        out["mse_loss"] = squaredloss/(1+math.exp(50-55*squaredloss))
+        
+        mse_element = torch.square(output["x_hat"]-target)
+        out["lambda_element"] = torch.sigmoid((mse_element-self.alpha)/self.beta)
+        out["mse_element"] = mse_element * out["lambda_element"]
+        out["lambda"] = torch.mean(out["lambda_element"])
+        out["mse_loss"] = torch.mean(out["mse_element"])
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
 
         return out
