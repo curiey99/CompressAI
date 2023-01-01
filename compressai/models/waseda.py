@@ -117,7 +117,7 @@ class Cheng2020Anchor(JointAutoregressiveHierarchicalPriors):
 
 @register_model("cheng2020-attn")
 class Cheng2020Attention(MeanScaleHyperprior):
-    def __init__(self, N=192, M=4, **kwargs):
+    def __init__(self, N=256, M=4, **kwargs):
         super().__init__(N=N, M=N, **kwargs)
         self.g_a = nn.Sequential(
             ResidualBlockWithStride(M, N, stride=2),
@@ -177,16 +177,7 @@ class Cheng2020Attention(MeanScaleHyperprior):
         net.load_state_dict(state_dict)
         return net
 
-    def forward(self, x):
-        y = self.g_a(x)
-        z = self.h_a(y)
-        z_hat, z_likelihoods = self.entropy_bottleneck(z)
-        gaussian_params = self.h_s(z_hat)
-        scales_hat, means_hat = gaussian_params.chunk(2, 1)
-        y_hat, y_likelihoods = self.gaussian_conditional(y, scales_hat, means=means_hat)
-        x_hat = self.g_s(y_hat)
-        # print(x.shape, x.device)
-        return x_hat
+
 
 
 """
