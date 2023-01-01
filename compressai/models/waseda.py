@@ -117,10 +117,10 @@ class Cheng2020Anchor(JointAutoregressiveHierarchicalPriors):
 
 @register_model("cheng2020-attn")
 class Cheng2020Attention(MeanScaleHyperprior):
-    def __init__(self, N=192, **kwargs):
+    def __init__(self, N=192, M=4, **kwargs):
         super().__init__(N=N, M=N, **kwargs)
         self.g_a = nn.Sequential(
-            ResidualBlockWithStride(4, N, stride=2),
+            ResidualBlockWithStride(M, N, stride=2),
             ResidualBlock(N, N),
             ResidualBlockWithStride(N, N, stride=2),
             AttentionBlock(N),
@@ -141,7 +141,7 @@ class Cheng2020Attention(MeanScaleHyperprior):
             ResidualBlock(N, N),
             ResidualBlockUpsample(N, N, 2),
             ResidualBlock(N, N),
-            subpel_conv3x3(N, 4, 2),
+            subpel_conv3x3(N, M, 2),
         )
 
         # self h_a, h_s: same as Cheng2020Anchor
