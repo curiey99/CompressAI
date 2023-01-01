@@ -266,13 +266,13 @@ class FeatureFolderPad(Dataset):
         if t.dim() == 3:
             t = t.unsqueeze(0)
 
-        if self.samples[index][-23:-21] == 'p2':
+        if self.samples[index].stem[1] == '2':  # p2
             hpad, wpad = self.pad-t.shape[2], self.pad-t.shape[3]
-        elif self.samples[index][-23:-21] == 'p3':    # p3
+        elif self.samples[index].stem[1] == '3':    # p3
             hpad, wpad = self.pad/2-t.shape[2], self.pad/2-t.shape[3]
-        elif self.samples[index][-23:-21] == 'p4':    # p4
+        elif self.samples[index].stem[1] == '4':    # p4
             hpad, wpad = self.pad/4-t.shape[2], self.pad/4-t.shape[3]
-        elif self.samples[index][-23:-21] == 'p5': # p5
+        elif self.samples[index].stem[1] == '5': # p5
             hpad, wpad = self.pad/8-t.shape[2], self.pad/8-t.shape[3]
         # else:
         #     print("!!! ERROR !!! {}".format(flist[i]))
