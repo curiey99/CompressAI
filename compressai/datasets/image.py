@@ -280,10 +280,10 @@ class FeatureFolderPad(Dataset):
         padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
             
         t = padding(t).squeeze(0)
-        print("HERE: {}".format(t.shape))
-        # 1, 256, 384, 384
-        print(self.samples[index].stem)
-        t = self.feature_rearrange_torch_16(t).unsqueeze(0) # 16, 384*4, 384*4
+        # print("HERE: {}".format(t.shape))
+        # # 1, 256, 384, 384
+        # print(self.samples[index].stem)
+        t = feature_rearrange_torch_16(t).unsqueeze(0) # 16, 384*4, 384*4
         assert t.shape[0] == 1 and t.shape[1] == 16
         if self.crop:
             tt = torch.empty((1, 16, self.cropsize, self.cropsize))
@@ -304,14 +304,14 @@ class FeatureFolderPad(Dataset):
         return len(self.samples)
 
         ###################
-    def feature_rearrange_torch_16(feature): ## 256, 4, 4 ->  16, 16, 16
-                                            ## 256, 3, 3 -> 16, 12, 12
-        h,w = feature.shape[1],feature.shape[2]
-        featuremap = torch.zeros((16, 4*h,4*w))
-        for c in range(16):
-            for i in range(4):
-                for j in range(4):
-                    c_num = i*4+j
-                    featuremap[c, i*h:(i+1)*h,j*w:(j+1)*w] = feature[c*16 + c_num,:,:]
-        return featuremap
+def feature_rearrange_torch_16(feature): ## 256, 4, 4 ->  16, 16, 16
+                                        ## 256, 3, 3 -> 16, 12, 12
+    h,w = feature.shape[1],feature.shape[2]
+    featuremap = torch.zeros((16, 4*h,4*w))
+    for c in range(16):
+        for i in range(4):
+            for j in range(4):
+                c_num = i*4+j
+                featuremap[c, i*h:(i+1)*h,j*w:(j+1)*w] = feature[c*16 + c_num,:,:]
+    return featuremap
 
