@@ -280,6 +280,7 @@ class FeatureFolderPad(Dataset):
         padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
             
         t = padding(t).squeeze(0)
+        print("HERE: {}".format(t.shape))
         # 1, 256, 384, 384
         t = self.feature_rearrange_torch_16(t).unsqueeze(0) # 16, 384*4, 384*4
         assert t.shape[0] == 1 and t.shape[1] == 16
