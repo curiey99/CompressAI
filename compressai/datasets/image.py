@@ -231,3 +231,85 @@ class FeatureFolderScale(Dataset):
         return len(self.samples)
 
 
+
+@register_dataset("FeatureFolderPad")
+class FeatureFolderPad(Dataset):
+    """Load an image folder database. Training and testing image samples
+    are respectively stored in separate directories:
+
+    Args:
+        root (string): root directory of the dataset
+        transform (callable, optional): a function or transform that takes in a
+            PIL image and returns a transformed version
+        split (string): split mode ('train' or 'val')
+    """
+
+    def __init__(self, root, split="train", crop=False, pad=384):
+        splitdir = Path(root) / split
+
+        if not splitdir.is_dir():
+            raise RuntimeError(f'Invalid directory "{root}"')
+
+        self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] != '6')]
+        self.crop = crop
+        self.pad = pad
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
+        """
+        t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
+        if t.dim() == 3:
+            t = t.unsqueeze(0)
+
+        if self.samples[index][-23:-21] == 'p2':
+            hpad, wpad = self.pad-t.shape[2], self.pad-t.shape[3]
+        elif self.samples[index][-23:-21] == 'p3':    # p3
+            hpad, wpad = self.pad/2-t.shape[2], self.pad/2-t.shape[3]
+        elif self.samples[index][-23:-21] == 'p4':    # p4
+            hpad, wpad = self.pad/4-t.shape[2], self.pad/4-t.shape[3]
+        elif self.samples[index][-23:-21] == 'p5': # p5
+            hpad, wpad = self.pad/8-t.shape[2], self.pad/8-t.shape[3]
+        # else:
+        #     print("!!! ERROR !!! {}".format(flist[i]))
+        #     break
+        padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
+            
+        t = padding(t)
+        # 1, 256, 384, 384
+        t = self.feature_rearrange_torch_16(t.squeeze(0)) # 16, 384*4, 384*4
+        assert t.shape[0] == 1 and t.shape[1] == 16
+        if self.crop:
+            tt = torch.empty((1, 16, self.cropsize, self.cropsize))
+            r = random.randint(0, t.shape[2]-self.cropsize-1)
+            o = random.randint(0, t.shape[2]-self.cropsize-1)
+            tt = t[:, :, r:r+self.cropsize, o:o+self.cropsize]
+            print("r={}, o={}, tt={}".format(r,o,tt.shape))
+            return tt.float()
+
+        if self.samples[index].stem[1] == '2':   # p2
+            t = interpolate(t, scale_factor=0.5, mode='bicubic')
+            
+        
+
+        return t.float()
+
+    def __len__(self):
+        return len(self.samples)
+
+        ###################
+    def feature_rearrange_torch_16(feature): ## 256, 4, 4 ->  16, 16, 16
+                                            ## 256, 3, 3 -> 16, 12, 12
+        h,w = feature.shape[1],feature.shape[2]
+        featuremap = torch.zeros((16, 4*h,4*w))
+        for c in range(16):
+            for i in range(4):
+                for j in range(4):
+                    c_num = i*4+j
+                    featuremap[c, i*h:(i+1)*h,j*w:(j+1)*w] = feature[c*16 + c_num,:,:]
+        return featuremap
+

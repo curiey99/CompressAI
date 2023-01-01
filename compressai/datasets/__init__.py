@@ -31,6 +31,7 @@ from .image import ImageFolder
 from .image import FeatureFolderTest
 from .image import FeatureFolderScale
 from .image import FeatureFolder256_to4
+from .image import FeatureFolderPad
 from .pregenerated import PreGeneratedMemmapDataset
 from .rawvideo import *
 from .video import VideoFolder
@@ -43,5 +44,6 @@ __all__ = [
     "Vimeo90kDataset",
     "FeatureFolderTest",
     "FeatureFolderScale",
-    "FeatureFolder256_to4"
+    "FeatureFolder256_to4", 
+    "FeatureFolderPad"
 ]
