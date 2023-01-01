@@ -282,6 +282,7 @@ class FeatureFolderPad(Dataset):
         t = padding(t).squeeze(0)
         print("HERE: {}".format(t.shape))
         # 1, 256, 384, 384
+        print(self.samples[index].stem)
         t = self.feature_rearrange_torch_16(t).unsqueeze(0) # 16, 384*4, 384*4
         assert t.shape[0] == 1 and t.shape[1] == 16
         if self.crop:
