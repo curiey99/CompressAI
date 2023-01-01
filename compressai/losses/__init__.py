@@ -28,7 +28,9 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from .rate_distortion import RateDistortionLoss
+from .rate_distortion import WarpedRDLoss
 
 __all__ = [
     "RateDistortionLoss",
+    "WarpedRDLoss"
 ]
