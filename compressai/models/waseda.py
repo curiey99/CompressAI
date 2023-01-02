@@ -177,6 +177,71 @@ class Cheng2020Attention(MeanScaleHyperprior):
         net.load_state_dict(state_dict)
         return net
 
+ 
+
+@register_model("cheng2020-attn")
+class Cheng2020Attention_shallow(MeanScaleHyperprior):
+    def __init__(self, N=320, M=16, **kwargs):
+        super().__init__(N=N, M=M, **kwargs)
+        self.g_a = nn.Sequential(
+            ResidualBlockWithStride(M, N, stride=2),
+            ResidualBlock(N, N),
+            ResidualBlockWithStride(N, N, stride=2),
+            AttentionBlock(N),
+            # ResidualBlock(N, N),
+            # ResidualBlockWithStride(N, N, stride=2),
+            ResidualBlock(N, N),
+            conv3x3(N, N, stride=2),
+            AttentionBlock(N),
+        )
+
+        self.g_s = nn.Sequential(
+            AttentionBlock(N),
+            ResidualBlock(N, N),
+            ResidualBlockUpsample(N, N, 2),
+            # ResidualBlock(N, N),
+            # ResidualBlockUpsample(N, N, 2),
+            AttentionBlock(N),
+            ResidualBlock(N, N),
+            ResidualBlockUpsample(N, N, 2),
+            ResidualBlock(N, N),
+            subpel_conv3x3(N, M, 2),
+        )
+
+        # self h_a, h_s: same as Cheng2020Anchor
+        self.h_a = nn.Sequential(
+            conv3x3(N, N),
+            nn.LeakyReLU(inplace=True),
+            conv3x3(N, N),
+            nn.LeakyReLU(inplace=True),
+            # conv3x3(N, N, stride=2),
+            # nn.LeakyReLU(inplace=True),
+            conv3x3(N, N),
+            nn.LeakyReLU(inplace=True),
+            conv3x3(N, N, stride=2),
+        )
+
+        self.h_s = nn.Sequential(
+            conv3x3(N, N),
+            nn.LeakyReLU(inplace=True),
+            # subpel_conv3x3(N, N, 2),
+            # nn.LeakyReLU(inplace=True),
+            conv3x3(N, N * 3 // 2),
+            nn.LeakyReLU(inplace=True),
+            subpel_conv3x3(N * 3 // 2, N * 3 // 2, 2),
+            nn.LeakyReLU(inplace=True),
+            conv3x3(N * 3 // 2, N * 2),
+        )
+
+    @classmethod
+    def from_state_dict(cls, state_dict):
+        # Return a new model instance from `state_dict`
+        N = state_dict["g_a.0.conv1.weight"].size(0)
+        net = cls(N)
+        net.load_state_dict(state_dict)
+        return net
+
+ 
 
 
 
