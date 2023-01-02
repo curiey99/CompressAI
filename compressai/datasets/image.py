@@ -92,33 +92,6 @@ class ImageFolder(Dataset):
         return len(self.samples)
 
 
-@register_dataset("FeatureFolderTest")
-class FeatureFolderTest(Dataset):
-
-    def __init__(self, root, split="test"):
-        splitdir = Path(root) / split
-
-        if not splitdir.is_dir():
-            raise RuntimeError(f'Invalid directory "{root}"')
-
-        self.samples = [f for f in Path(root).iterdir() if (f.is_file() and f.stem[1] != '6')]
-        
-    def __getitem__(self, index):
-        """
-        Args:
-            index (int): Index
-
-        Returns:
-            img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
-        """
-        fmap = from_numpy(np.load(self.samples[index]))
-        head_tail = path.split(self.samples[index])
-        return fmap, head_tail[1]
-
-    def __len__(self):
-        return len(self.samples)
-
-
 @register_dataset("FeatureFolder256_to4")
 class FeatureFolder256_to4(Dataset):
     """Load an feature map folder database. 
@@ -211,7 +184,7 @@ class FeatureFolderScale(Dataset):
             r = random.randint(0, t.shape[2]-self.cropsize-1)
             o = random.randint(0, t.shape[2]-self.cropsize-1)
             tt = t[:, :, r:r+self.cropsize, o:o+self.cropsize]
-            # print("r={}, o={}, tt={}".format(r,o,tt.shape))
+            print("r={}, o={}, tt={}".format(r,o,tt.shape))
             return tt.float()
 
         if self.downsize:
@@ -288,11 +261,12 @@ class FeatureFolderPad(Dataset):
             r = random.randint(0, t.shape[2]-self.cropsize-1)
             o = random.randint(0, t.shape[2]-self.cropsize-1)
             tt = t[:, :, r:r+self.cropsize, o:o+self.cropsize]
-            print("r={}, o={}, tt={}".format(r,o,tt.shape))
             return tt.float()
 
         if self.samples[index].stem[1] == '2':   # p2
             t = interpolate(t, scale_factor=0.5, mode='bicubic')
+        elif self.samples[index].stem[1] == '5':   # p5
+            t = interpolate(t, scale_factor=2, mode='bicubic')
         
         if self.eval:
             return t.float(), h, w, self.samples[index].stem # p2_xxxx (without extension)
