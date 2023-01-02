@@ -263,7 +263,7 @@ class FeatureFolderPad(Dataset):
         assert t.shape[0] == 1 and t.shape[1] == 16
         if self.samples[index].stem[1] == '5':   # p5
             t = interpolate(t, scale_factor=2, mode='bicubic')
-        print(t.shape)
+        print("{}: {}".format(self.samples[index], t.shape))
         if self.crop is not None and self.split != 'test':
             tt = torch.empty((1, 16, self.crop, self.crop))
             r = random.randint(0, t.shape[1]-self.crop-1)
@@ -271,7 +271,7 @@ class FeatureFolderPad(Dataset):
             tt = t[:, :, r:r+self.crop, o:o+self.crop]
             return tt.float()
 
-        if self.samples[index].stem[1] == '2':   # p2
+        if self.crop is None and self.samples[index].stem[1] == '2':   # p2
             t = interpolate(t, scale_factor=0.5, mode='bicubic')
         
         
