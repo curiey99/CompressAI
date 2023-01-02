@@ -264,7 +264,7 @@ class FeatureFolderPad(Dataset):
         if self.samples[index].stem[1] == '5':   # p5
             t = interpolate(t, scale_factor=2, mode='bicubic', align_corners=False)
         
-        if self.crop is not None and self.split != 'test':
+        if not self.eval and self.crop is not None and self.split != 'test':
             tt = torch.empty((1, 16, self.crop, self.crop))
             r = random.randint(0, t.shape[2]-self.crop-1)
             o = random.randint(0, t.shape[3]-self.crop-1)
