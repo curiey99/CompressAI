@@ -230,6 +230,7 @@ class FeatureFolderPad(Dataset):
         self.crop = crop
         self.pad = pad
         self.eval = eval
+        self.split = split
       
 
     def __getitem__(self, index):
@@ -262,7 +263,7 @@ class FeatureFolderPad(Dataset):
         assert t.shape[0] == 1 and t.shape[1] == 16
         if self.samples[index].stem[1] == '5':   # p5
             t = interpolate(t, scale_factor=2, mode='bicubic')
-        if self.crop is not None:
+        if self.crop is not None and self.split != 'test':
             tt = torch.empty((1, 16, self.crop, self.crop))
             r = random.randint(0, t.shape[1]-self.crop-1)
             o = random.randint(0, t.shape[2]-self.crop-1)
