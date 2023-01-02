@@ -205,7 +205,7 @@ class FeatureFolderScale(Dataset):
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
         if t.dim() == 3:
             t = t.unsqueeze(0)
-
+        assert t.shape[0] == 1 and t.shape[1] == 4
         if self.crop:
             tt = torch.empty((1, 4, self.cropsize, self.cropsize))
             r = random.randint(0, t.shape[2]-self.cropsize-1)
@@ -230,9 +230,10 @@ class FeatureFolderScale(Dataset):
     def __len__(self):
         return len(self.samples)
 
-@register_dataset("FeatureFolderTiledNorm")
-class FeatureFolderTiledNorm(Dataset):
-    #FeatureMaps scaled & normalized
+
+
+@register_dataset("FeatureFolderPad")
+class FeatureFolderPad(Dataset):
     """Load an image folder database. Training and testing image samples
     are respectively stored in separate directories:
 
@@ -243,58 +244,16 @@ class FeatureFolderTiledNorm(Dataset):
         split (string): split mode ('train' or 'val')
     """
 
-    def __init__(self, root, split="train"):
+    def __init__(self, root, split="train", crop=False, pad=384, eval=False):
         splitdir = Path(root) / split
 
         if not splitdir.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
 
-        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
-        #self.norm = transforms.Normalize(mean, std)    
-
-    def __getitem__(self, index):
-        
-        
-        t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float')).unsqueeze(0).unsqueeze(0)
-        
-       # t = from_numpy(load(self.samples[index], allow_pickle=True))
-        if self.samples[index].stem[1] == '2':   # p2
-            t = interpolate(t, scale_factor=0.5, mode='bicubic')
-        t = torch.clamp(t, min=-26.426828384399414, max=28.397470474243164)
-        t = (t+26.426828384399414)/54.824298858642578
-        t = torch.clamp(t, 0, 1)
-        # normalize
-        # scaling
-        
-        return t.float()
-
-    def __len__(self):
-        return len(self.samples)
-
-
-
-
-@register_dataset("FeatureFolderNorm")
-class FeatureFolderNorm(Dataset):
-    #FeatureMaps scaled & normalized
-    """Load an image folder database. Training and testing image samples
-    are respectively stored in separate directories:
-
-    Args:
-        root (string): root directory of the dataset
-        transform (callable, optional): a function or transform that takes in a
-            PIL image and returns a transformed version
-        split (string): split mode ('train' or 'val')
-    """
-
-    def __init__(self, root, split="train"):
-        splitdir = Path(root) / split
-
-        if not splitdir.is_dir():
-            raise RuntimeError(f'Invalid directory "{root}"')
-
-        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
-        #self.norm = transforms.Normalize(mean, std)    
+        self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] != '6')]
+        self.crop = crop
+        self.pad = pad
+        self.eval = eval
 
     def __getitem__(self, index):
         """
@@ -305,72 +264,53 @@ class FeatureFolderNorm(Dataset):
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
-       # t = from_numpy(load(self.samples[index], allow_pickle=True))
-        t = torch.clamp(t, min=-26.426828384399414, max=28.397470474243164)
-        t = (t+26.426828384399414)/54.824298858642578
-        # normalize
-        # scaling
-        if t.shape[2] == 256 and t.shape[3] == 256:
-            return t.float()
-        if 64 < max(t.shape[2], t.shape[3]) <= 128:     # p3
-            t = interpolate(t, scale_factor=2, mode='bicubic')
-        elif 32 < max(t.shape[2], t.shape[3]) <= 64:    # p4
-            t = interpolate(t, scale_factor=4, mode='bicubic')
-        elif max(t.shape[2], t.shape[3]) <= 32:         # p5
-            t = interpolate(t, scale_factor=8, mode='bicubic')
-
-        hpad, wpad = 256-t.shape[2], 256-t.shape[3]
-        padding = torch.nn.ReplicationPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
-        
-        if torch.max(t) > 1 or torch.min(t) < 0:
-            print("!!!!!!!!!! ERROR !!!!!!!!")
-            print(self.samples[index])
-      
-        return padding(t).type(torch.FloatTensor)
-        #print("x_hat: {}".format(x_hat[0, 1, 0, 0]))
-
-        #return from_numpy(load(self.samples[index]))
-        # img = Image.open(self.samples[index]).convert("RGB")
-        # if self.transform:
-        #     return self.transform(img)
-        # return img
-
-    def __len__(self):
-        return len(self.samples)
-
-
-@register_dataset("FeatureFolderGeneral")
-class FeatureFolderGeneral(Dataset):
-
-    def __init__(self, root, split="test"):
-        splitdir = Path(root) / split
-        if not splitdir.is_dir():
-            raise RuntimeError(f'Invalid directory "{root}"')
-
-        self.samples = [f for f in splitdir.iterdir() if f.is_file() and f.stem[0] == 'p']
-        
-    def __getitem__(self, index):
-        """
-        Args:
-            index (int): Index
-
-        Returns:
-            x (Tensor): Feature Map (1, 256, 256, 256)
-        """
-        x = from_numpy(np.load(self.samples[index]))
-        filename = path.split(self.samples[index])
-        if filename[1][1] == '3':
-            x = interpolate(x, scale_factor=2, mode='bicubic')
-        if filename[1][1] == '4':
-            x = interpolate(x, scale_factor=4, mode='bicubic')
-        if filename[1][1] == '5':
-            x = interpolate(x, scale_factor=8, mode='bicubic')
-
-        hpad, wpad = 256-x.shape[2], 256-x.shape[3]
+        if t.dim() == 3:
+            t = t.unsqueeze(0)
+        h, w = t.shape[2], t.shape[3]
+        if self.samples[index].stem[1] == '2':  # p2
+            hpad, wpad = self.pad-h, self.pad-w
+        elif self.samples[index].stem[1] == '3':    # p3
+            hpad, wpad = self.pad/2-h, self.pad/2-w
+        elif self.samples[index].stem[1] == '4':    # p4
+            hpad, wpad = self.pad/4-h, self.pad/4-w
+        elif self.samples[index].stem[1] == '5': # p5
+            hpad, wpad = self.pad/8-h, self.pad/8-w
         padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
-        return padding(x)
+            
+        t = padding(t).squeeze(0)
+        # print("HERE: {}".format(t.shape))
+        # # 1, 256, 384, 384
+        # print(self.samples[index].stem)
+        t = feature_rearrange_torch_16(t).unsqueeze(0) # 16, 384*4, 384*4
+        assert t.shape[0] == 1 and t.shape[1] == 16
+        if self.crop:
+            tt = torch.empty((1, 16, self.cropsize, self.cropsize))
+            r = random.randint(0, t.shape[2]-self.cropsize-1)
+            o = random.randint(0, t.shape[2]-self.cropsize-1)
+            tt = t[:, :, r:r+self.cropsize, o:o+self.cropsize]
+            print("r={}, o={}, tt={}".format(r,o,tt.shape))
+            return tt.float()
+
+        if self.samples[index].stem[1] == '2':   # p2
+            t = interpolate(t, scale_factor=0.5, mode='bicubic')
+        
+        if self.eval:
+            return t.float(), h, w, self.samples[index].stem # p2_xxxx (without extension)
+        else:
+            return t.float()
 
     def __len__(self):
         return len(self.samples)
 
+        ###################
+def feature_rearrange_torch_16(feature): ## 256, 4, 4 ->  16, 16, 16
+                                        ## 256, 3, 3 -> 16, 12, 12
+    h,w = feature.shape[1],feature.shape[2]
+    featuremap = torch.zeros((16, 4*h,4*w))
+    for c in range(16):
+        for i in range(4):
+            for j in range(4):
+                c_num = i*4+j
+                featuremap[c, i*h:(i+1)*h,j*w:(j+1)*w] = feature[c*16 + c_num,:,:]
+    return featuremap
 
