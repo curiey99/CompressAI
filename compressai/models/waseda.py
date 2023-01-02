@@ -179,7 +179,7 @@ class Cheng2020Attention(MeanScaleHyperprior):
 
  
 
-@register_model("cheng2020-attn")
+@register_model("cheng2020-attn-shallow")
 class Cheng2020Attention_shallow(MeanScaleHyperprior):
     def __init__(self, N=320, M=16, **kwargs):
         super().__init__(N=N, M=M, **kwargs)
