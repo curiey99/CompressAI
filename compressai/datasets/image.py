@@ -266,7 +266,9 @@ class FeatureFolderPad(Dataset):
         
         if self.crop is not None and self.split != 'test':
             print("{}: {}".format(self.samples[index], t.shape))
+            print(t.shape[1]-self.crop-1)
             tt = torch.empty((1, 16, self.crop, self.crop))
+            print(tt.shape)
             r = random.randint(0, t.shape[1]-self.crop-1)
             o = random.randint(0, t.shape[2]-self.crop-1)
             tt = t[:, :, r:r+self.crop, o:o+self.crop]
