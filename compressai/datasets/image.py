@@ -217,16 +217,20 @@ class FeatureFolderPad(Dataset):
         split (string): split mode ('train' or 'val')
     """
 
-    def __init__(self, root, split="train", crop=False, pad=384, eval=False):
+    def __init__(self, root, split="train", crop=False, pad=384, eval=False, scale=None):
         splitdir = Path(root) / split
 
         if not splitdir.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
-
-        self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] != '6')]
+        self.scale = scale # '2' , '3', '4', '5'
+        if self.scale is None:
+            self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] != '6')]
+        else:
+            self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] == self.scale)]
         self.crop = crop
         self.pad = pad
         self.eval = eval
+      
 
     def __getitem__(self, index):
         """
