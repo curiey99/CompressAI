@@ -270,6 +270,7 @@ class FeatureFolderPad(Dataset):
             r = random.randint(0, t.shape[1]-self.crop-1)
             o = random.randint(0, t.shape[2]-self.crop-1)
             tt = t[:, :, r:r+self.crop, o:o+self.crop]
+            print(self.samples[index])
             return tt.float()
 
         if self.crop is None and self.samples[index].stem[1] == '2':   # p2
