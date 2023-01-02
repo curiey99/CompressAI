@@ -244,7 +244,7 @@ class FeatureFolderPad(Dataset):
         split (string): split mode ('train' or 'val')
     """
 
-    def __init__(self, root, split="train", crop=False, pad=384):
+    def __init__(self, root, split="train", crop=False, pad=384, eval=False):
         splitdir = Path(root) / split
 
         if not splitdir.is_dir():
@@ -253,6 +253,7 @@ class FeatureFolderPad(Dataset):
         self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] != '6')]
         self.crop = crop
         self.pad = pad
+        self.eval = eval
 
     def __getitem__(self, index):
         """
@@ -265,18 +266,15 @@ class FeatureFolderPad(Dataset):
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
         if t.dim() == 3:
             t = t.unsqueeze(0)
-
+        h, w = t.shape[2], t.shape[3]
         if self.samples[index].stem[1] == '2':  # p2
-            hpad, wpad = self.pad-t.shape[2], self.pad-t.shape[3]
+            hpad, wpad = self.pad-h, self.pad-w
         elif self.samples[index].stem[1] == '3':    # p3
-            hpad, wpad = self.pad/2-t.shape[2], self.pad/2-t.shape[3]
+            hpad, wpad = self.pad/2-h, self.pad/2-w
         elif self.samples[index].stem[1] == '4':    # p4
-            hpad, wpad = self.pad/4-t.shape[2], self.pad/4-t.shape[3]
+            hpad, wpad = self.pad/4-h, self.pad/4-w
         elif self.samples[index].stem[1] == '5': # p5
-            hpad, wpad = self.pad/8-t.shape[2], self.pad/8-t.shape[3]
-        # else:
-        #     print("!!! ERROR !!! {}".format(flist[i]))
-        #     break
+            hpad, wpad = self.pad/8-h, self.pad/8-w
         padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
             
         t = padding(t).squeeze(0)
@@ -295,10 +293,11 @@ class FeatureFolderPad(Dataset):
 
         if self.samples[index].stem[1] == '2':   # p2
             t = interpolate(t, scale_factor=0.5, mode='bicubic')
-            
         
-
-        return t.float()
+        if self.eval:
+            return t.float(), h, w, self.samples[index].stem # p2_xxxx (without extension)
+        else:
+            return t.float()
 
     def __len__(self):
         return len(self.samples)
