@@ -262,17 +262,13 @@ class FeatureFolderPad(Dataset):
         t = feature_rearrange_torch_16(t).unsqueeze(0) # 16, 384*4, 384*4
         assert t.shape[0] == 1 and t.shape[1] == 16
         if self.samples[index].stem[1] == '5':   # p5
-            t = interpolate(t, scale_factor=2, mode='bicubic')
+            t = interpolate(t, scale_factor=2, mode='bicubic', align_corners=False)
         
         if self.crop is not None and self.split != 'test':
-            # print("{}: {}".format(self.samples[index], t.shape))
-            # print(t.shape[1]-self.crop-1)
             tt = torch.empty((1, 16, self.crop, self.crop))
-            # print(tt.shape)
             r = random.randint(0, t.shape[2]-self.crop-1)
             o = random.randint(0, t.shape[3]-self.crop-1)
             tt = t[:, :, r:r+self.crop, o:o+self.crop]
-            # print(self.samples[index])
             return tt.float()
 
         if self.crop is None and self.samples[index].stem[1] == '2':   # p2
