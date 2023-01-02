@@ -217,7 +217,7 @@ class FeatureFolderPad(Dataset):
         split (string): split mode ('train' or 'val')
     """
 
-    def __init__(self, root, split="train", crop=False, pad=384, eval=False, scale=None):
+    def __init__(self, root, split="train", crop=None, pad=384, eval=False, scale=None):
         splitdir = Path(root) / split
 
         if not splitdir.is_dir():
@@ -260,17 +260,18 @@ class FeatureFolderPad(Dataset):
         # print(self.samples[index].stem)
         t = feature_rearrange_torch_16(t).unsqueeze(0) # 16, 384*4, 384*4
         assert t.shape[0] == 1 and t.shape[1] == 16
-        if self.crop:
-            tt = torch.empty((1, 16, self.cropsize, self.cropsize))
-            r = random.randint(0, t.shape[2]-self.cropsize-1)
-            o = random.randint(0, t.shape[2]-self.cropsize-1)
-            tt = t[:, :, r:r+self.cropsize, o:o+self.cropsize]
+        if self.samples[index].stem[1] == '5':   # p5
+            t = interpolate(t, scale_factor=2, mode='bicubic')
+        if self.crop is not None:
+            tt = torch.empty((1, 16, self.crop, self.crop))
+            r = random.randint(0, t.shape[1]-self.crop-1)
+            o = random.randint(0, t.shape[2]-self.crop-1)
+            tt = t[:, :, r:r+self.crop, o:o+self.crop]
             return tt.float()
 
         if self.samples[index].stem[1] == '2':   # p2
             t = interpolate(t, scale_factor=0.5, mode='bicubic')
-        elif self.samples[index].stem[1] == '5':   # p5
-            t = interpolate(t, scale_factor=2, mode='bicubic')
+        
         
         if self.eval:
             return t.float(), h, w, self.samples[index].stem # p2_xxxx (without extension)
