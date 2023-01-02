@@ -28,7 +28,6 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from .image import ImageFolder
-from .image import FeatureFolderTest
 from .image import FeatureFolderScale
 from .image import FeatureFolder256_to4
 from .image import FeatureFolderPad
@@ -42,7 +41,6 @@ __all__ = [
     "PreGeneratedMemmapDataset",
     "VideoFolder",
     "Vimeo90kDataset",
-    "FeatureFolderTest",
     "FeatureFolderScale",
     "FeatureFolder256_to4", 
     "FeatureFolderPad"
