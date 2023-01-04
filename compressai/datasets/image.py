@@ -301,7 +301,7 @@ import os
 @register_dataset("FeatureFusion")
 class FeatureFusion(Dataset):
 
-    def __init__(self, root, pad=384, eval=False):
+    def __init__(self, root, pad=192, eval=False):
         p5dir = Path(root) / 'p5'
         if not p5dir.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
@@ -318,7 +318,13 @@ class FeatureFusion(Dataset):
         p3 = torch.as_tensor(np.load(os.path.join(self.root, 'p3', 'p3_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype('float'))
         p4 = torch.as_tensor(np.load(os.path.join(self.root, 'p4', 'p4_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype('float'))
         p5 = torch.as_tensor(np.load(os.path.join(self.root, 'p5', 'p5_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype('float'))     
-        
+        p2 = interpolate(p2, scale_factor=0.5, mode='bicubic')
+        p3 = interpolate(p3, scale_factor=0.5, mode='bicubic')
+        p4 = interpolate(p4, scale_factor=0.5, mode='bicubic')
+        p5 = interpolate(p5, scale_factor=0.5, mode='bicubic')
+
+
+
         paddings = {}
         paddings['h2'], paddings['w2'] = self.pad - p2.shape[2], self.pad - p2.shape[3]
         paddings['h3'], paddings['w3'] = self.pad//2 - p3.shape[2], self.pad//2 - p3.shape[3]
