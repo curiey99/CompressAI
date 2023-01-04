@@ -341,6 +341,10 @@ class FeatureFusion(Dataset):
         p4 = paddings['p4'](p4)
         p5 = paddings['p5'](p5)
 
+        p2 = p2.squeeze(0)
+        p3 = p3.squeeze(0)
+        p4 = p4.squeeze(0)
+        p5 = p5.squeeze(0)
         if self.eval:
             return [p2, p3, p4, p5], paddings
         else:
