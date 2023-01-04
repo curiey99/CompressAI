@@ -33,6 +33,7 @@ from compressai.models import (
     Cheng2020Anchor,
     Cheng2020Attention,
     Cheng2020Attention_shallow,
+    Cheng2020Attention_Deep,
     FactorizedPrior,
     JointAutoregressiveHierarchicalPriors,
     MeanScaleHyperprior,
@@ -48,7 +49,8 @@ __all__ = [
     "mbt2018_mean",
     "cheng2020_anchor",
     "cheng2020_attn",
-    "cheng2020_attn_shallow"
+    "cheng2020_attn_shallow",
+    "cheng2020_attn_deep"
 ]
 
 model_architectures = {
@@ -58,7 +60,8 @@ model_architectures = {
     "mbt2018": JointAutoregressiveHierarchicalPriors,
     "cheng2020-anchor": Cheng2020Anchor,
     "cheng2020-attn": Cheng2020Attention,
-    "cheng2020-attn-shallow": Cheng2020Attention_shallow
+    "cheng2020-attn-shallow": Cheng2020Attention_shallow,
+    "cheng2020-attn-deep": Cheng2020Attention_Deep
 }
 
 root_url = "https://compressai.s3.amazonaws.com/models/v1"
@@ -276,6 +279,14 @@ cfgs = {
         1: (256,),
         2: (256,),
         3: (256,),
+        4: (320,),
+        5: (320,),
+        6: (320,),
+    },
+    "cheng2020-attn-deep": {
+        1: (320,),
+        2: (320,),
+        3: (320,),
         4: (320,),
         5: (320,),
         6: (320,),
