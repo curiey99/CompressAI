@@ -47,20 +47,47 @@ class RateDistortionLoss(nn.Module):
         self.lmbda = lmbda
 
     def forward(self, output, target): 
-        # out_net,                                  , d
-        # dict{"features"(list), "likelihoods"}     , list[p2~p5]
-        num_pixels = 0
-        for p in target:
-            N, _, H, W = p.size()
-            print("N, H, W:", N, H, W)
-            out = {}
-            num_pixels += N * H * W
+        N, _, H, W = target.size()
+        out = {}
+        num_pixels = N * H * W
 
         out["bpp_loss"] = sum(
             (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
             for likelihoods in output["likelihoods"].values()
         )
         out["mse_loss"] = self.mse(output["x_hat"], target)
+        out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
+
+        return out
+
+@register_criterion("FusionRDLoss")
+class FusionRDLoss(nn.Module):
+    """Custom rate distortion loss with a Lagrangian parameter."""
+
+    def __init__(self, lmbda=1e-2):
+        super().__init__()
+        self.mse = nn.MSELoss()
+        self.lmbda = lmbda
+
+    def forward(self, output, target): 
+        # out_net,                                  , d
+        # dict{"features"(list), "likelihoods"}     , list[p2~p5]
+        out = {}
+        num_pixels = 0
+        
+        for p in target:
+            N, _, H, W = p.size()
+            num_pixels += N * H * W
+            
+
+        out["bpp_loss"] = sum(
+            (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
+            for likelihoods in output["likelihoods"].values()
+        )
+
+
+        out["mse_loss"] = self.mse(output["features"][0], target[0]) + self.mse(output["features"][1], target[1]) + self.mse(output["features"][2], target[2]) + self.mse(output["features"][3], target[3])
+        
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
 
         # N, _, H, W = target.size()
