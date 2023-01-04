@@ -301,7 +301,7 @@ import os
 @register_dataset("FeatureFusion")
 class FeatureFusion(Dataset):
 
-    def __init__(self, root, pad=196, eval=False):
+    def __init__(self, root, pad=192, eval=False):
         p5dir = Path(root) / 'p5'
         if not p5dir.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
