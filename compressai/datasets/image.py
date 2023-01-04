@@ -306,7 +306,7 @@ class FeatureFusion(Dataset):
         if not p5dir.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
         self.root = root
-        self.IDs = [f.stem[3:] for f in p5dir.iterdir() if f.is_file()]
+        self.IDs = [f.stem[3:] for f in p5dir.iterdir() if (f.is_file() and  f.stem[1] == '5')]
         self.pad = pad
         self.eval = eval
    
@@ -314,10 +314,10 @@ class FeatureFusion(Dataset):
     def __getitem__(self, index):
 
 
-        p2 = torch.as_tensor(np.load(os.path.join(self.root, 'p2', self.IDs[index]), allow_pickle=True).astype('float'))
-        p3 = torch.as_tensor(np.load(os.path.join(self.root, 'p3', self.IDs[index]), allow_pickle=True).astype('float'))
-        p4 = torch.as_tensor(np.load(os.path.join(self.root, 'p4', self.IDs[index]), allow_pickle=True).astype('float'))
-        p5 = torch.as_tensor(np.load(os.path.join(self.root, 'p5', self.IDs[index]), allow_pickle=True).astype('float'))     
+        p2 = torch.as_tensor(np.load(os.path.join(self.root, 'p2', 'p2_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype('float'))
+        p3 = torch.as_tensor(np.load(os.path.join(self.root, 'p3', 'p3_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype('float'))
+        p4 = torch.as_tensor(np.load(os.path.join(self.root, 'p4', 'p4_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype('float'))
+        p5 = torch.as_tensor(np.load(os.path.join(self.root, 'p5', 'p5_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype('float'))     
         
         paddings = {}
         paddings['h2'], paddings['w2'] = self.pad - p2.shape[2], self.pad - p2.shape[3]
@@ -341,7 +341,7 @@ class FeatureFusion(Dataset):
             return [p2, p3, p4, p5]
 
     def __len__(self):
-        return len(self.samples)
+        return len(self.IDs)
 
         ###################
 
