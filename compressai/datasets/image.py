@@ -400,12 +400,35 @@ class FeatureFusion(Dataset):
             p2 = paddings['p2'](p2)
             p3 = paddings['p3'](p3)
             p4 = paddings['p4'](p4)
-            p5 = paddings['p5'](p5)
+            if paddings['h5'] >= p5.shape[2] * 2:
+                paddings['p5'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w5']/2), math.floor(paddings['w5']/2), p5.shape[2]-1, p5.shape[2]-1))
+                p5 = paddings['p5'](p5)
+                if self.pad//8 >= 3*p5.shape[2]:
+                    p5_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//8-p5.shape[2])/2)-1, math.floor((self.pad//8-p5.shape[2])/2)-1))
+                    p5 = p5_p(p5)
+                    p5_pp = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//8-p5.shape[2])/2), math.floor((self.pad//8-p5.shape[2])/2)))
+                    p5 = p5_pp(p5)
+                else:
+                    p5_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//8-p5.shape[2])/2), math.floor((self.pad//8-p5.shape[2])/2)))
+                    p5 = p5_p(p5)
+            elif paddings['w5'] >= p5.shape[3] * 2:
+                paddings['p5'] = torch.nn.ReflectionPad2d((p5.shape[3]-1, p5.shape[3]-1, math.ceil(paddings['h5']/2), math.floor(paddings['h5']/2)))
+                p5 = paddings['p5'](p5)
+                if self.pad//8 >= 3*p5.shape[3]:
+                    p5_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//8-p5.shape[3])/2)-1, math.floor((self.pad//8-p5.shape[3])/2)-1, 0, 0))
+                    p5 = p5_p(p5)
+                    p5_pp = torch.nn.ReflectionPad2d((math.ceil((self.pad//8-p5.shape[3])/2), math.floor((self.pad//8-p5.shape[3])/2), 0, 0))
+                    p5 = p5_pp(p5)
+                else:
+                    p5_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//8-p5.shape[3])/2), math.floor((self.pad//8-p5.shape[3])/2), 0, 0))
+                    p5 = p5_p(p5)
+            else:
+                p5 = paddings['p5'](p5)
         
         assert p2.shape[2] == self.pad and p2.shape[3] == self.pad
         assert p3.shape[2] == self.pad//2 and p3.shape[3] == self.pad//2
         assert p4.shape[2] == self.pad//4 and p4.shape[3] == self.pad//4
-        assert p5.shape[2] == self.pad//8 and p5.shape[3] == self.pad//8
+        assert p4.shape[2] == self.pad//8 and p5.shape[3] == self.pad//8
             
         # print(p2.shape)
         # print(paddings['p2'])
