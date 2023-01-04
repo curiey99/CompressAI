@@ -87,19 +87,8 @@ class FusionRDLoss(nn.Module):
 
 
         out["mse_loss"] = self.mse(output["features"][0], target[0]) + self.mse(output["features"][1], target[1]) + self.mse(output["features"][2], target[2]) + self.mse(output["features"][3], target[3])
-        
+
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
-
-        # N, _, H, W = target.size()
-        # out = {}
-        # num_pixels = N * H * W
-
-        # out["bpp_loss"] = sum(
-        #     (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
-        #     for likelihoods in output["likelihoods"].values()
-        # )
-        # out["mse_loss"] = self.mse(output["x_hat"], target)
-        # out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
 
         return out
 

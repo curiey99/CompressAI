@@ -321,15 +321,13 @@ class FeatureFusion(Dataset):
         p2 = interpolate(p2, scale_factor=0.5, mode='bicubic')
         p3 = interpolate(p3, scale_factor=0.5, mode='bicubic')
         p4 = interpolate(p4, scale_factor=0.5, mode='bicubic')
-        p5 = interpolate(p5, scale_factor=0.5, mode='bicubic')
-
 
 
         paddings = {}
         paddings['h2'], paddings['w2'] = self.pad - p2.shape[2], self.pad - p2.shape[3]
         paddings['h3'], paddings['w3'] = self.pad//2 - p3.shape[2], self.pad//2 - p3.shape[3]
         paddings['h4'], paddings['w4'] = self.pad//4 - p4.shape[2], self.pad//4 - p4.shape[3]
-        paddings['h5'], paddings['w5'] = self.pad//8 - p5.shape[2], self.pad//8 - p5.shape[3]
+        paddings['h5'], paddings['w5'] = self.pad//4 - p5.shape[2], self.pad//4 - p5.shape[3]
         
         paddings['p2'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w2']/2), math.floor(paddings['w2']/2), math.ceil(paddings['h2']/2), math.floor(paddings['h2']/2)))
         paddings['p3'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w3']/2), math.floor(paddings['w3']/2), math.ceil(paddings['h3']/2), math.floor(paddings['h3']/2)))
