@@ -484,3 +484,25 @@ def cheng2020_attn_shallow(quality=3, metric="mse", pretrained=False, progress=T
         "cheng2020-attn-shallow", metric, quality, pretrained, progress, **kwargs
     )
 
+def cheng2020_attn_deep(quality=5, metric="mse", pretrained=False, progress=True, **kwargs):
+    r"""Self-attention model variant from `"Learned Image Compression with
+    Discretized Gaussian Mixture Likelihoods and Attention Modules"
+    <https://arxiv.org/abs/2001.01568>`_, by Zhengxue Cheng, Heming Sun, Masaru
+    Takeuchi, Jiro Katto.
+
+    Args:
+        quality (int): Quality levels (1: lowest, highest: 6)
+        metric (str): Optimized metric, choose from ('mse', 'ms-ssim')
+        pretrained (bool): If True, returns a pre-trained model
+        progress (bool): If True, displays a progress bar of the download to stderr
+    """
+    if metric not in ("mse", "ms-ssim"):
+        raise ValueError(f'Invalid metric "{metric}"')
+
+    if quality < 1 or quality > 6:
+        raise ValueError(f'Invalid quality "{quality}", should be between (1, 6)')
+
+    return _load_model(
+        "cheng2020-attn-deep", metric, quality, pretrained, progress, **kwargs
+    )
+
