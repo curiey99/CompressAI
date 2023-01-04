@@ -333,9 +333,13 @@ class FeatureFusion(Dataset):
         if paddings['h2'] > p2.shape[2] * 2:
             print("{}, {} -> {}, {}".format(p2.shape[2], p2.shape[3], paddings['h2'], paddings['w2']))
             paddings['p2'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w2']/2), math.floor(paddings['w2']/2), p2.shape[2], p2.shape[2]))
+            print(paddings['p2'])
             p2 = paddings['p2'](p2)
+            print(p2.shape)
             p2_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad-p2.shape[2])/2), math.floor((self.pad-p2.shape[2])/2)))
+            print(p2_p)
             p2 = p2_p(p2)
+            print(p2)
 
             paddings['p3'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w3']/2), math.floor(paddings['w3']/2), p3.shape[2], p3.shape[2]))
             p3 = paddings['p3'](p3)
