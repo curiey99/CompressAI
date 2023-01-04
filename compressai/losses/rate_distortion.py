@@ -46,10 +46,15 @@ class RateDistortionLoss(nn.Module):
         self.mse = nn.MSELoss()
         self.lmbda = lmbda
 
-    def forward(self, output, target):
-        N, _, H, W = target.size()
-        out = {}
-        num_pixels = N * H * W
+    def forward(self, output, target): 
+        # out_net,                                  , d
+        # dict{"features"(list), "likelihoods"}     , list[p2~p5]
+        num_pixels = 0
+        for p in target:
+            N, _, H, W = p.size()
+            print("N, H, W:", N, H, W)
+            out = {}
+            num_pixels += N * H * W
 
         out["bpp_loss"] = sum(
             (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
@@ -57,6 +62,17 @@ class RateDistortionLoss(nn.Module):
         )
         out["mse_loss"] = self.mse(output["x_hat"], target)
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
+
+        # N, _, H, W = target.size()
+        # out = {}
+        # num_pixels = N * H * W
+
+        # out["bpp_loss"] = sum(
+        #     (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
+        #     for likelihoods in output["likelihoods"].values()
+        # )
+        # out["mse_loss"] = self.mse(output["x_hat"], target)
+        # out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
 
         return out
 
