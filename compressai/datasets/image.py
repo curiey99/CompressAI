@@ -256,9 +256,6 @@ class FeatureFolderPad(Dataset):
         padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
             
         t = padding(t).squeeze(0)
-        # print("HERE: {}".format(t.shape))
-        # # 1, 256, 384, 384
-        # print(self.samples[index].stem)
         t = feature_rearrange_torch_16(t).unsqueeze(0) # 16, 384*4, 384*4
         assert t.shape[0] == 1 and t.shape[1] == 16
         if self.samples[index].stem[1] == '5':   # p5
@@ -266,8 +263,8 @@ class FeatureFolderPad(Dataset):
         
         if not self.eval and self.crop is not None and self.split != 'test':
             tt = torch.empty((1, 16, self.crop, self.crop))
-            r = random.randint(0, t.shape[2]-self.crop-1)
-            o = random.randint(0, t.shape[3]-self.crop-1)
+            r = random.randint(0, t.shape[2]-self.crop)
+            o = random.randint(0, t.shape[3]-self.crop)
             tt = t[:, :, r:r+self.crop, o:o+self.crop]
             return tt.float()
 
