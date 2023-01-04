@@ -428,7 +428,7 @@ class FeatureFusion(Dataset):
         assert p2.shape[2] == self.pad and p2.shape[3] == self.pad
         assert p3.shape[2] == self.pad//2 and p3.shape[3] == self.pad//2
         assert p4.shape[2] == self.pad//4 and p4.shape[3] == self.pad//4
-        assert p4.shape[2] == self.pad//8 and p5.shape[3] == self.pad//8
+        assert p5.shape[2] == self.pad//8 and p5.shape[3] == self.pad//8
             
         # print(p2.shape)
         # print(paddings['p2'])
