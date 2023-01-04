@@ -363,7 +363,7 @@ class FeatureFusion(Dataset):
             #     p5 = p5_p(p5)
             p5_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//8-p5.shape[2])/2), math.floor((self.pad//8-p5.shape[2])/2)))
             p5 = p5_p(p5)
-        elif paddings['w5'] >= p2.shape[3] * 2:
+        elif paddings['w2'] >= p2.shape[3] * 2:
             print("{}, {} -> {}, {}".format(p2.shape[2], p2.shape[3], paddings['h2'], paddings['w2']))
             paddings['p5'] = torch.nn.ReflectionPad2d((p2.shape[3]-1, p2.shape[3]-1, math.ceil(paddings['h5']/2), math.floor(paddings['h5']/2)))
             p2 = paddings['p5'](p2)
