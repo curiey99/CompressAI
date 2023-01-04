@@ -361,9 +361,10 @@ class FeatureFusion(Dataset):
             else:
                 p5_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//8-p5.shape[2])/2), math.floor((self.pad//8-p5.shape[2])/2)))
                 p5 = p5_p(p5)
+
         elif paddings['w2'] >= p2.shape[3] * 2:
-            print("{}, {} -> {}, {}".format(p2.shape[2], p2.shape[3], paddings['h2'], paddings['w2']))
-            paddings['p5'] = torch.nn.ReflectionPad2d((p2.shape[3]-1, p2.shape[3]-1, math.ceil(paddings['h5']/2), math.floor(paddings['h5']/2)))
+            # print("{}, {} -> {}, {}".format(p2.shape[2], p2.shape[3], paddings['h2'], paddings['w2']))
+            paddings['p5'] = torch.nn.ReflectionPad2d((p2.shape[3]-1, p2.shape[3]-1, math.ceil(paddings['h2']/2), math.floor(paddings['h2']/2)))
             p2 = paddings['p5'](p2)
             p2_p = torch.nn.ReflectionPad2d((math.ceil((self.pad-p2.shape[3])/2), math.floor((self.pad-p2.shape[3])/2), 0, 0))
             p2 = p2_p(p2)
@@ -400,6 +401,11 @@ class FeatureFusion(Dataset):
             p3 = paddings['p3'](p3)
             p4 = paddings['p4'](p4)
             p5 = paddings['p5'](p5)
+        
+        assert p2.shape[2] == self.pad and p2.shape[3] == self.pad
+        assert p3.shape[2] == self.pad//2 and p3.shape[3] == self.pad//2
+        assert p4.shape[2] == self.pad//4 and p4.shape[3] == self.pad//4
+        assert p5.shape[2] == self.pad//8 and p5.shape[3] == self.pad//8
             
         # print(p2.shape)
         # print(paddings['p2'])
