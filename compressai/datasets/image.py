@@ -281,6 +281,8 @@ class FeatureFolderPad(Dataset):
         return len(self.samples)
 
         ###################
+
+
 def feature_rearrange_torch_16(feature): ## 256, 4, 4 ->  16, 16, 16
                                         ## 256, 3, 3 -> 16, 12, 12
     h,w = feature.shape[1],feature.shape[2]
@@ -291,4 +293,55 @@ def feature_rearrange_torch_16(feature): ## 256, 4, 4 ->  16, 16, 16
                 c_num = i*4+j
                 featuremap[c, i*h:(i+1)*h,j*w:(j+1)*w] = feature[c*16 + c_num,:,:]
     return featuremap
+
+
+import os
+
+
+@register_dataset("FeatureFusion")
+class FeatureFusion(Dataset):
+
+    def __init__(self, root, pad=384, eval=False):
+        p5dir = Path(root) / 'p5'
+        if not p5dir.is_dir():
+            raise RuntimeError(f'Invalid directory "{root}"')
+        self.root = root
+        self.IDs = [f.stem[3:] for f in p5dir.iterdir() if f.is_file()]
+        self.pad = pad
+        self.eval = eval
+   
+
+    def __getitem__(self, index):
+
+
+        p2 = torch.as_tensor(np.load(os.path.join(self.root, 'p2', self.IDs[index]), allow_pickle=True).astype('float'))
+        p3 = torch.as_tensor(np.load(os.path.join(self.root, 'p3', self.IDs[index]), allow_pickle=True).astype('float'))
+        p4 = torch.as_tensor(np.load(os.path.join(self.root, 'p4', self.IDs[index]), allow_pickle=True).astype('float'))
+        p5 = torch.as_tensor(np.load(os.path.join(self.root, 'p5', self.IDs[index]), allow_pickle=True).astype('float'))     
+        
+        paddings = {}
+        paddings['h2'], paddings['w2'] = self.pad - p2.shape[2], self.pad - p2.shape[3]
+        paddings['h3'], paddings['w3'] = self.pad//2 - p3.shape[2], self.pad//2 - p3.shape[3]
+        paddings['h4'], paddings['w4'] = self.pad//4 - p4.shape[2], self.pad//4 - p4.shape[3]
+        paddings['h5'], paddings['w5'] = self.pad//8 - p5.shape[2], self.pad//8 - p5.shape[3]
+        
+        paddings['p2'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w2']/2), math.floor(paddings['w2']/2), math.ceil(paddings['h2']/2), math.floor(paddings['h2']/2)))
+        paddings['p3'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w3']/2), math.floor(paddings['w3']/2), math.ceil(paddings['h3']/2), math.floor(paddings['h3']/2)))
+        paddings['p4'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w4']/2), math.floor(paddings['w4']/2), math.ceil(paddings['h4']/2), math.floor(paddings['h4']/2)))
+        paddings['p5'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w5']/2), math.floor(paddings['w5']/2), math.ceil(paddings['h5']/2), math.floor(paddings['h5']/2)))
+        
+        p2 = paddings['p2'](p2)
+        p3 = paddings['p3'](p3)
+        p4 = paddings['p4'](p4)
+        p5 = paddings['p5'](p5)
+
+        if self.eval:
+            return [p2, p3, p4, p5], paddings
+        else:
+            return [p2, p3, p4, p5]
+
+    def __len__(self):
+        return len(self.samples)
+
+        ###################
 
