@@ -140,6 +140,9 @@ class FusionWarpedLoss(nn.Module):
         self.mse = nn.MSELoss()
         self.lmbda = lmbda
 
+        self.alpha = alpha
+        self.beta = beta
+
     def forward(self, output, target): 
         # out_net,                                  , d
         # dict{"features"(list), "likelihoods"}     , list[p2~p5]
