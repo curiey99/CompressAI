@@ -178,10 +178,10 @@ class FusionWarpedLoss(nn.Module):
         
 
 
-        out["p2_mse"] = p2_mse.clone().detach()
-        out["p3_mse"] = p3_mse.clone().detach()
-        out["p4_mse"] = p4_mse.clone().detach()
-        out["p5_mse"] = p5_mse.clone().detach()
+        out["p2_mse"] = p2_mse.mean().clone().detach()
+        out["p3_mse"] = p3_mse.mean().clone().detach()
+        out["p4_mse"] = p4_mse.mean().clone().detach()
+        out["p5_mse"] = p5_mse.mean().clone().detach()
 
 #         print("device:\n{}, {}\ngrad:\n{}, {}\n\n".format(p2_mse.device, p2_mse.requires_grad, out["p2_mse"].device, out["p2_mse"].requires_grad))
             # device:
