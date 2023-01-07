@@ -92,6 +92,75 @@ class FusionRDLoss(nn.Module):
 
         return out
 
+
+
+@register_criterion("FusionWarpedLoss")
+class FusionWarpedLoss(nn.Module):
+    """Custom rate distortion loss with a Lagrangian parameter."""
+
+    def __init__(self, lmbda=1e-2, alpha=1.0, beta=0.05):
+        super().__init__()
+        self.mse = nn.MSELoss()
+        self.lmbda = lmbda
+
+    def forward(self, output, target): 
+        # out_net,                                  , d
+        # dict{"features"(list), "likelihoods"}     , list[p2~p5]
+        out = {}
+        num_pixels = 0
+        
+        for p in target:
+            N, _, H, W = p.size()
+            num_pixels += N * H * W
+            
+
+        out["bpp_loss"] = sum(
+            (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
+            for likelihoods in output["likelihoods"].values()
+        )
+
+        p2_mse = torch.square(output["features"][0] - target[0])
+        p3_mse = torch.square(output["features"][1] - target[1])
+        p4_mse = torch.square(output["features"][2] - target[2])
+        p5_mse = torch.square(output["features"][3] - target[3])
+
+        out["p2_lambda"] = torch.sigmoid((p2_mse-self.alpha)/self.beta)
+        out["p3_lambda"] = torch.sigmoid((p3_mse-self.alpha)/self.beta)
+        out["p4_lambda"] = torch.sigmoid((p4_mse-self.alpha)/self.beta)
+        out["p5_lambda"] = torch.sigmoid((p5_mse-self.alpha)/self.beta)
+        
+        out["p2_mseloss"] = p2_mse * out["p2_lambda"]
+        out["p3_mseloss"] = p2_mse * out["p3_lambda"]
+        out["p4_mseloss"] = p2_mse * out["p4_lambda"]
+        out["p5_mseloss"] = p2_mse * out["p5_lambda"]
+        
+        out["p2_mse"] = p2_mse
+        out["p3_mse"] = p3_mse
+        out["p4_mse"] = p4_mse
+        out["p5_mse"] = p5_mse
+
+        out["p2_mse"] = p2_mse.clone().detach()
+        out["p3_mse"] = p3_mse.clone().detach()
+        out["p4_mse"] = p4_mse.clone().detach()
+        out["p5_mse"] = p5_mse.clone().detach()
+
+        print("device:\n{}, {}\ngrad:\n{}, {}\n\n".format(p2_mse.device(), p2_mse.requires_grad(), out["p2_mse"].device(), out["p2_mse"].requires_grad()))
+        # print(p2_mse.device())
+        # print(p2_mse.requires_grad())
+        # print(out["p2_mse"].device())
+        # print(out["p2_mse"].requires_grad())
+
+        # out["p2_mse"] = out["p2_mse"].detach()
+        # out["p3_mse"] = out["p3_mse"].detach()
+        # out["p4_mse"] = out["p4_mse"].detach()
+        # out["p5_mse"] = out["p5_mse"].detach()
+
+        out["loss"] = self.lmbda * 255**2 * (torch.mean(out["p2_mseloss"]) + torch.mean(out["p3_mseloss"]) + torch.mean(out["p4_mseloss"]) + torch.mean(out["p5_mseloss"])) + out["bpp_loss"]
+
+        return out
+
+
+@register_criterion("WarpedRDLoss")
 class WarpedRDLoss(nn.Module):
     def __init__(self, lmbda=1e-2, alpha=1, beta=0.05):
         super().__init__()
