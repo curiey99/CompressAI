@@ -183,10 +183,14 @@ class FusionWarpedLoss(nn.Module):
         out["p4_mse"] = p4_mse.clone().detach()
         out["p5_mse"] = p5_mse.clone().detach()
 
-        print("device:\n{}, {}\ngrad:\n{}, {}\n\n".format(p2_mse.device, p2_mse.requires_grad, out["p2_mse"].device, out["p2_mse"].requires_grad))
+#         print("device:\n{}, {}\ngrad:\n{}, {}\n\n".format(p2_mse.device, p2_mse.requires_grad, out["p2_mse"].device, out["p2_mse"].requires_grad))
+            # device:
+            # cuda:0, True
+            # grad:
+            # cuda:0, False
+        out["mse_loss"] = torch.mean(out["p2_mseloss"]) + torch.mean(out["p3_mseloss"]) + torch.mean(out["p4_mseloss"]) + torch.mean(out["p5_mseloss"])
 
-
-        out["loss"] = self.lmbda * 255**2 * (torch.mean(out["p2_mseloss"]) + torch.mean(out["p3_mseloss"]) + torch.mean(out["p4_mseloss"]) + torch.mean(out["p5_mseloss"])) + out["bpp_loss"]
+        out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
 
         return out
 
