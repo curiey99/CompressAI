@@ -172,9 +172,9 @@ class FusionWarpedLoss(nn.Module):
 
 
         out["p2_mseloss"] = p2_mse * torch.sigmoid((p2_mse-self.alpha)/self.beta)
-        out["p3_mseloss"] = p2_mse * torch.sigmoid((p3_mse-self.alpha)/self.beta)
-        out["p4_mseloss"] = p2_mse * torch.sigmoid((p4_mse-self.alpha)/self.beta)
-        out["p5_mseloss"] = p2_mse * torch.sigmoid((p5_mse-self.alpha)/self.beta)
+        out["p3_mseloss"] = p3_mse * torch.sigmoid((p3_mse-self.alpha)/self.beta)
+        out["p4_mseloss"] = p4_mse * torch.sigmoid((p4_mse-self.alpha)/self.beta)
+        out["p5_mseloss"] = p5_mse * torch.sigmoid((p5_mse-self.alpha)/self.beta)
         
 
 
