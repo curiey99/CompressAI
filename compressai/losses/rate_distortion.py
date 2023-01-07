@@ -93,6 +93,44 @@ class FusionRDLoss(nn.Module):
         return out
 
 
+@register_criterion("FusionRDLoss_P")
+class FusionRDLoss_P(nn.Module):
+    """Custom rate distortion loss with a Lagrangian parameter."""
+
+    def __init__(self, lmbda=1e-2):
+        super().__init__()
+        self.mse = nn.MSELoss()
+        self.lmbda = lmbda
+
+    def forward(self, output, target): 
+        # out_net,                                  , d
+        # dict{"features"(list), "likelihoods"}     , list[p2~p5]
+        out = {}
+        num_pixels = 0
+        
+        for p in target:
+            N, _, H, W = p.size()
+            num_pixels += N * H * W
+            
+
+        out["bpp_loss"] = sum(
+            (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
+            for likelihoods in output["likelihoods"].values()
+        )
+
+        out["mse_loss"] = self.mse(output["features"][0], target[0]) + self.mse(output["features"][1], target[1]) + self.mse(output["features"][2], target[2]) + self.mse(output["features"][3], target[3])
+
+        out["p2_mse"] = (torch.square(output["features"][0] - target[0])).mean().clone().detach()
+        out["p3_mse"] = (torch.square(output["features"][1] - target[1])).mean().clone().detach()
+        out["p4_mse"] = (torch.square(output["features"][2] - target[2])).mean().clone().detach()
+        out["p5_mse"] = (torch.square(output["features"][3] - target[3])).mean().clone().detach()
+        
+
+        out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
+
+        return out
+
+
 
 @register_criterion("FusionWarpedLoss")
 class FusionWarpedLoss(nn.Module):
@@ -134,10 +172,10 @@ class FusionWarpedLoss(nn.Module):
         out["p4_mseloss"] = p2_mse * out["p4_lambda"]
         out["p5_mseloss"] = p2_mse * out["p5_lambda"]
         
-        out["p2_mse"] = p2_mse
-        out["p3_mse"] = p3_mse
-        out["p4_mse"] = p4_mse
-        out["p5_mse"] = p5_mse
+        # out["p2_mse"] = p2_mse
+        # out["p3_mse"] = p3_mse
+        # out["p4_mse"] = p4_mse
+        # out["p5_mse"] = p5_mse
 
         out["p2_mse"] = p2_mse.clone().detach()
         out["p3_mse"] = p3_mse.clone().detach()
