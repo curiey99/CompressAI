@@ -467,11 +467,18 @@ class FeatureFusion2(Dataset):
     def __getitem__(self, index):
 
 
-        p2 = torch.as_tensor(np.load(os.path.join(self.root, 'p2', 'p2_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
-        p3 = torch.as_tensor(np.load(os.path.join(self.root, 'p3', 'p3_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
-        p4 = torch.as_tensor(np.load(os.path.join(self.root, 'p4', 'p4_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
-        p5 = torch.as_tensor(np.load(os.path.join(self.root, 'p5', 'p5_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))     
-        p2 = interpolate(p2, scale_factor=0.5, mode='bicubic')
+        p2_ = torch.as_tensor(np.load(os.path.join(self.root, 'p2', 'p2_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
+        p3_ = torch.as_tensor(np.load(os.path.join(self.root, 'p3', 'p3_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
+        p4_ = torch.as_tensor(np.load(os.path.join(self.root, 'p4', 'p4_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
+        p5_ = torch.as_tensor(np.load(os.path.join(self.root, 'p5', 'p5_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32)) 
+        # p2 = torch.as_tensor(np.load(os.path.join(self.root, 'p2', 'p2_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
+        # p3 = torch.as_tensor(np.load(os.path.join(self.root, 'p3', 'p3_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
+        # p4 = torch.as_tensor(np.load(os.path.join(self.root, 'p4', 'p4_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
+        # p5 = torch.as_tensor(np.load(os.path.join(self.root, 'p5', 'p5_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))     
+        p2 = interpolate(p2_, scale_factor=0.5, mode='bicubic')
+        p3=p3_
+        p4=p4_
+        p5=p5_
         
 
         paddings = {}
@@ -481,7 +488,6 @@ class FeatureFusion2(Dataset):
         paddings['h5'], paddings['w5'] = self.pad//4 - p5.shape[2], self.pad//4 - p5.shape[3]
         
         if paddings['h2'] >= p2.shape[2] * 2:
-            print("DEBUG 1")
             # print("{}, {} -> {}, {}".format(p2.shape[2], p2.shape[3], paddings['h2'], paddings['w2']))
             paddings['p2'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w2']/2), math.floor(paddings['w2']/2), p2.shape[2]-1, p2.shape[2]-1))
             # print(paddings['p2'])
@@ -515,7 +521,6 @@ class FeatureFusion2(Dataset):
 
         elif paddings['w2'] >= p2.shape[3] * 2:
             
-            print("DEBUG 2")
             # print("{}, {} -> {}, {}".format(p2.shape[2], p2.shape[3], paddings['h2'], paddings['w2']))
             paddings['p5'] = torch.nn.ReflectionPad2d((p2.shape[3]-1, p2.shape[3]-1, math.ceil(paddings['h2']/2), math.floor(paddings['h2']/2)))
             p2 = paddings['p5'](p2)
@@ -547,7 +552,6 @@ class FeatureFusion2(Dataset):
             p5 = p5_p(p5)
         else:
             
-            print("DEBUG 3")
             paddings['p2'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w2']/2), math.floor(paddings['w2']/2), math.ceil(paddings['h2']/2), math.floor(paddings['h2']/2)))
             paddings['p3'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w3']/2), math.floor(paddings['w3']/2), math.ceil(paddings['h3']/2), math.floor(paddings['h3']/2)))
             paddings['p4'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w4']/2), math.floor(paddings['w4']/2), math.ceil(paddings['h4']/2), math.floor(paddings['h4']/2)))
@@ -588,6 +592,7 @@ class FeatureFusion2(Dataset):
             assert p5.shape[2] == self.pad//4 and p5.shape[3] == self.pad//4
         except AssertionError:
             print("p2: {}\np3: {}\np4: {}\np5: {}".format(p2.shape, p3.shape, p4.shape, p5.shape))
+            print("p2: {}\np3: {}\np4: {}\np5: {}".format(p2_.shape, p3_.shape, p4_.shape, p5_.shape))
         # print("Assertion Confirmed")
         # print(p2.shape)
         # print(paddings['p2'])
