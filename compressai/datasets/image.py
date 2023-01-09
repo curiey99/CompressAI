@@ -575,11 +575,12 @@ class FeatureFusion2(Dataset):
             else:
                 p5 = paddings['p5'](p5)
         
+        print("p2: {}\np3: {}\np4: {}\np5: {}".format(p2.shape, p3.shape, p4.shape, p5.shape))
         assert p2.shape[2] == self.pad and p2.shape[3] == self.pad
         assert p3.shape[2] == self.pad and p3.shape[3] == self.pad
         assert p4.shape[2] == self.pad//2 and p4.shape[3] == self.pad//2
         assert p5.shape[2] == self.pad//4 and p5.shape[3] == self.pad//4
-            
+        print("Assertion Confirmed")
         # print(p2.shape)
         # print(paddings['p2'])
         # print(p5.shape)
