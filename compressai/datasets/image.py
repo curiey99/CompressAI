@@ -486,7 +486,8 @@ class FeatureFusion2(Dataset):
         paddings['h3'], paddings['w3'] = self.pad - p3.shape[2], self.pad - p3.shape[3]
         paddings['h4'], paddings['w4'] = self.pad//2 - p4.shape[2], self.pad//2 - p4.shape[3]
         paddings['h5'], paddings['w5'] = self.pad//4 - p5.shape[2], self.pad//4 - p5.shape[3]
-        
+        # 336 168
+        # 168 168
         if paddings['h2'] >= p2.shape[2] * 2:
             # print("{}, {} -> {}, {}".format(p2.shape[2], p2.shape[3], paddings['h2'], paddings['w2']))
             paddings['p2'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w2']/2), math.floor(paddings['w2']/2), p2.shape[2]-1, p2.shape[2]-1))
@@ -593,6 +594,8 @@ class FeatureFusion2(Dataset):
         except AssertionError:
             print("p2: {}\np3: {}\np4: {}\np5: {}".format(p2.shape, p3.shape, p4.shape, p5.shape))
             print("p2: {}\np3: {}\np4: {}\np5: {}".format(p2_.shape, p3_.shape, p4_.shape, p5_.shape))
+            for key in paddings:
+                print("{}: {}".format(key, paddings[key]))
         # print("Assertion Confirmed")
         # print(p2.shape)
         # print(paddings['p2'])
