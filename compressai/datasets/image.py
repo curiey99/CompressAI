@@ -481,6 +481,7 @@ class FeatureFusion2(Dataset):
         paddings['h5'], paddings['w5'] = self.pad//4 - p5.shape[2], self.pad//4 - p5.shape[3]
         
         if paddings['h2'] >= p2.shape[2] * 2:
+            print("DEBUG 1")
             # print("{}, {} -> {}, {}".format(p2.shape[2], p2.shape[3], paddings['h2'], paddings['w2']))
             paddings['p2'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w2']/2), math.floor(paddings['w2']/2), p2.shape[2]-1, p2.shape[2]-1))
             # print(paddings['p2'])
@@ -513,6 +514,8 @@ class FeatureFusion2(Dataset):
                 p5 = p5_p(p5)
 
         elif paddings['w2'] >= p2.shape[3] * 2:
+            
+            print("DEBUG 2")
             # print("{}, {} -> {}, {}".format(p2.shape[2], p2.shape[3], paddings['h2'], paddings['w2']))
             paddings['p5'] = torch.nn.ReflectionPad2d((p2.shape[3]-1, p2.shape[3]-1, math.ceil(paddings['h2']/2), math.floor(paddings['h2']/2)))
             p2 = paddings['p5'](p2)
@@ -543,6 +546,8 @@ class FeatureFusion2(Dataset):
             p5_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//8-p5.shape[3])/2), math.floor((self.pad//8-p5.shape[3])/2), 0, 0))
             p5 = p5_p(p5)
         else:
+            
+            print("DEBUG 3")
             paddings['p2'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w2']/2), math.floor(paddings['w2']/2), math.ceil(paddings['h2']/2), math.floor(paddings['h2']/2)))
             paddings['p3'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w3']/2), math.floor(paddings['w3']/2), math.ceil(paddings['h3']/2), math.floor(paddings['h3']/2)))
             paddings['p4'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w4']/2), math.floor(paddings['w4']/2), math.ceil(paddings['h4']/2), math.floor(paddings['h4']/2)))
