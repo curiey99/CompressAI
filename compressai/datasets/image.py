@@ -501,55 +501,55 @@ class FeatureFusion2(Dataset):
 
             paddings['p3'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w3']/2), math.floor(paddings['w3']/2), p3.shape[2]-1, p3.shape[2]-1))
             p3 = paddings['p3'](p3)
-            p3_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//2-p3.shape[2])/2), math.floor((self.pad//2-p3.shape[2])/2)))
+            p3_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad-p3.shape[2])/2), math.floor((self.pad-p3.shape[2])/2)))
             p3 = p3_p(p3)
 
             paddings['p4'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w4']/2), math.floor(paddings['w4']/2), p4.shape[2]-1, p4.shape[2]-1))
             p4 = paddings['p4'](p4)
-            p4_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//4-p4.shape[2])/2), math.floor((self.pad//4-p4.shape[2])/2)))
+            p4_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//2-p4.shape[2])/2), math.floor((self.pad//2-p4.shape[2])/2)))
             p4 = p4_p(p4)
 
             paddings['p5'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w5']/2), math.floor(paddings['w5']/2), p5.shape[2]-1, p5.shape[2]-1))
             p5 = paddings['p5'](p5)
             if self.pad//8 >= 3*p5.shape[2]:
-                p5_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//8-p5.shape[2])/2)-1, math.floor((self.pad//8-p5.shape[2])/2)-1))
+                p5_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//4-p5.shape[2])/2)-1, math.floor((self.pad//4-p5.shape[2])/2)-1))
                 p5 = p5_p(p5)
-                p5_pp = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//8-p5.shape[2])/2), math.floor((self.pad//8-p5.shape[2])/2)))
+                p5_pp = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//4-p5.shape[2])/2), math.floor((self.pad//4-p5.shape[2])/2)))
                 p5 = p5_pp(p5)
             else:
-                p5_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//8-p5.shape[2])/2), math.floor((self.pad//8-p5.shape[2])/2)))
+                p5_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//4-p5.shape[2])/2), math.floor((self.pad//4-p5.shape[2])/2)))
                 p5 = p5_p(p5)
 
         elif paddings['w2'] >= p2.shape[3] * 2:
             
             # print("{}, {} -> {}, {}".format(p2.shape[2], p2.shape[3], paddings['h2'], paddings['w2']))
-            paddings['p5'] = torch.nn.ReflectionPad2d((p2.shape[3]-1, p2.shape[3]-1, math.ceil(paddings['h2']/2), math.floor(paddings['h2']/2)))
-            p2 = paddings['p5'](p2)
+            paddings['p2'] = torch.nn.ReflectionPad2d((p2.shape[3]-1, p2.shape[3]-1, math.ceil(paddings['h2']/2), math.floor(paddings['h2']/2)))
+            p2 = paddings['p2'](p2)
             p2_p = torch.nn.ReflectionPad2d((math.ceil((self.pad-p2.shape[3])/2), math.floor((self.pad-p2.shape[3])/2), 0, 0))
             p2 = p2_p(p2)
 
             paddings['p3'] = torch.nn.ReflectionPad2d((p3.shape[3]-1, p3.shape[3]-1, math.ceil(paddings['h3']/2), math.floor(paddings['h3']/2)))
             p3 = paddings['p3'](p3)
-            p3_p = torch.nn.ReflectionPad2d(( math.ceil((self.pad//2-p3.shape[3])/2), math.floor((self.pad//2-p3.shape[3])/2), 0, 0))
+            p3_p = torch.nn.ReflectionPad2d(( math.ceil((self.pad-p3.shape[3])/2), math.floor((self.pad-p3.shape[3])/2), 0, 0))
             p3 = p3_p(p3)
 
             paddings['p4'] = torch.nn.ReflectionPad2d((p4.shape[3]-1, p4.shape[3]-1, math.ceil(paddings['h4']/2), math.floor(paddings['h4']/2)))
             p4 = paddings['p4'](p4)
-            p4_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//4-p4.shape[3])/2), math.floor((self.pad//4-p4.shape[3])/2), 0, 0))
+            p4_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//2-p4.shape[3])/2), math.floor((self.pad//2-p4.shape[3])/2), 0, 0))
             p4 = p4_p(p4)
 
             paddings['p5'] = torch.nn.ReflectionPad2d((p5.shape[3]-1, p5.shape[3]-1, math.ceil(paddings['h5']/2), math.floor(paddings['h5']/2)))
             p5 = paddings['p5'](p5)
-            if self.pad//8 >= 3*p5.shape[3]:
-                p5_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//8-p5.shape[3])/2)-1, math.floor((self.pad//8-p5.shape[3])/2)-1, 0, 0))
+            if self.pad//4 >= 3*p5.shape[3]:
+                p5_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//4-p5.shape[3])/2)-1, math.floor((self.pad//4-p5.shape[3])/2)-1, 0, 0))
                 p5 = p5_p(p5)
-                p5_pp = torch.nn.ReflectionPad2d((math.ceil((self.pad//8-p5.shape[3])/2), math.floor((self.pad//8-p5.shape[3])/2), 0, 0))
+                p5_pp = torch.nn.ReflectionPad2d((math.ceil((self.pad//4-p5.shape[3])/2), math.floor((self.pad//4-p5.shape[3])/2), 0, 0))
                 p5 = p5_pp(p5)
             else:
-                p5_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//8-p5.shape[3])/2), math.floor((self.pad//8-p5.shape[3])/2), 0, 0))
+                p5_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//4-p5.shape[3])/2), math.floor((self.pad//4-p5.shape[3])/2), 0, 0))
                 p5 = p5_p(p5)
 
-            p5_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//8-p5.shape[3])/2), math.floor((self.pad//8-p5.shape[3])/2), 0, 0))
+            p5_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//4-p5.shape[3])/2), math.floor((self.pad//4-p5.shape[3])/2), 0, 0))
             p5 = p5_p(p5)
         else:
             
@@ -561,26 +561,26 @@ class FeatureFusion2(Dataset):
             p3 = paddings['p3'](p3)
             p4 = paddings['p4'](p4)
             if paddings['h5'] >= p5.shape[2] * 2:
-                paddings['p5'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w5']/2), math.floor(paddings['w5']/2), p5.shape[2]-1, p5.shape[2]-1))
+                paddings['p5'] = torch.nn.ReflectionPad2d((math.ceil(paddings['w5']/4), math.floor(paddings['w5']/4), p5.shape[2]-1, p5.shape[2]-1))
                 p5 = paddings['p5'](p5)
-                if self.pad//8 >= 3*p5.shape[2]:
-                    p5_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//8-p5.shape[2])/2)-1, math.floor((self.pad//8-p5.shape[2])/2)-1))
+                if self.pad//4 >= 3*p5.shape[2]:
+                    p5_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//4-p5.shape[2])/2)-1, math.floor((self.pad//4-p5.shape[2])/2)-1))
                     p5 = p5_p(p5)
-                    p5_pp = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//8-p5.shape[2])/2), math.floor((self.pad//8-p5.shape[2])/2)))
+                    p5_pp = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//4-p5.shape[2])/2), math.floor((self.pad//4-p5.shape[2])/2)))
                     p5 = p5_pp(p5)
                 else:
-                    p5_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//8-p5.shape[2])/2), math.floor((self.pad//8-p5.shape[2])/2)))
+                    p5_p = torch.nn.ReflectionPad2d((0, 0, math.ceil((self.pad//4-p5.shape[2])/2), math.floor((self.pad//4-p5.shape[2])/2)))
                     p5 = p5_p(p5)
             elif paddings['w5'] >= p5.shape[3] * 2:
                 paddings['p5'] = torch.nn.ReflectionPad2d((p5.shape[3]-1, p5.shape[3]-1, math.ceil(paddings['h5']/2), math.floor(paddings['h5']/2)))
                 p5 = paddings['p5'](p5)
-                if self.pad//8 >= 3*p5.shape[3]:
-                    p5_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//8-p5.shape[3])/2)-1, math.floor((self.pad//8-p5.shape[3])/2)-1, 0, 0))
+                if self.pad//4 >= 3*p5.shape[3]:
+                    p5_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//4-p5.shape[3])/2)-1, math.floor((self.pad//4-p5.shape[3])/2)-1, 0, 0))
                     p5 = p5_p(p5)
-                    p5_pp = torch.nn.ReflectionPad2d((math.ceil((self.pad//8-p5.shape[3])/2), math.floor((self.pad//8-p5.shape[3])/2), 0, 0))
+                    p5_pp = torch.nn.ReflectionPad2d((math.ceil((self.pad//4-p5.shape[3])/2), math.floor((self.pad//4-p5.shape[3])/2), 0, 0))
                     p5 = p5_pp(p5)
                 else:
-                    p5_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//8-p5.shape[3])/2), math.floor((self.pad//8-p5.shape[3])/2), 0, 0))
+                    p5_p = torch.nn.ReflectionPad2d((math.ceil((self.pad//4-p5.shape[3])/2), math.floor((self.pad//4-p5.shape[3])/2), 0, 0))
                     p5 = p5_p(p5)
             else:
                 p5 = paddings['p5'](p5)
