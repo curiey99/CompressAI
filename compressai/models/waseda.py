@@ -177,8 +177,6 @@ class Cheng2020Attention(MeanScaleHyperprior):
         net.load_state_dict(state_dict)
         return net
 
-<<<<<<< HEAD
-=======
  
 
 @register_model("cheng2020-attn-deep")
@@ -307,7 +305,6 @@ class Cheng2020Attention_shallow(MeanScaleHyperprior):
         return net
 
  
->>>>>>> test
 
 
 
