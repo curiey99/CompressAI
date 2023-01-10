@@ -33,6 +33,7 @@ from compressai.models import (
     Cheng2020Anchor,
     Cheng2020Attention,
     Cheng2020Attention_shallow,
+    Cheng2020Attention_Deep,
     FactorizedPrior,
     JointAutoregressiveHierarchicalPriors,
     MeanScaleHyperprior,
@@ -48,7 +49,8 @@ __all__ = [
     "mbt2018_mean",
     "cheng2020_anchor",
     "cheng2020_attn",
-    "cheng2020_attn_shallow"
+    "cheng2020_attn_shallow",
+    "cheng2020_attn_deep"
 ]
 
 model_architectures = {
@@ -58,7 +60,8 @@ model_architectures = {
     "mbt2018": JointAutoregressiveHierarchicalPriors,
     "cheng2020-anchor": Cheng2020Anchor,
     "cheng2020-attn": Cheng2020Attention,
-    "cheng2020-attn-shallow": Cheng2020Attention_shallow
+    "cheng2020-attn-shallow": Cheng2020Attention_shallow,
+    "cheng2020-attn-deep": Cheng2020Attention_Deep
 }
 
 root_url = "https://compressai.s3.amazonaws.com/models/v1"
@@ -270,12 +273,20 @@ cfgs = {
         3: (192,),
         4: (256,),
         5: (256,),
-        6: (256,),
+        6: (320,),
     },
     "cheng2020-attn-shallow": {
         1: (256,),
         2: (256,),
         3: (256,),
+        4: (320,),
+        5: (320,),
+        6: (320,),
+    },
+    "cheng2020-attn-deep": {
+        1: (320,),
+        2: (320,),
+        3: (320,),
         4: (320,),
         5: (320,),
         6: (320,),
@@ -471,5 +482,27 @@ def cheng2020_attn_shallow(quality=3, metric="mse", pretrained=False, progress=T
 
     return _load_model(
         "cheng2020-attn-shallow", metric, quality, pretrained, progress, **kwargs
+    )
+
+def cheng2020_attn_deep(quality=5, metric="mse", pretrained=False, progress=True, **kwargs):
+    r"""Self-attention model variant from `"Learned Image Compression with
+    Discretized Gaussian Mixture Likelihoods and Attention Modules"
+    <https://arxiv.org/abs/2001.01568>`_, by Zhengxue Cheng, Heming Sun, Masaru
+    Takeuchi, Jiro Katto.
+
+    Args:
+        quality (int): Quality levels (1: lowest, highest: 6)
+        metric (str): Optimized metric, choose from ('mse', 'ms-ssim')
+        pretrained (bool): If True, returns a pre-trained model
+        progress (bool): If True, displays a progress bar of the download to stderr
+    """
+    if metric not in ("mse", "ms-ssim"):
+        raise ValueError(f'Invalid metric "{metric}"')
+
+    if quality < 1 or quality > 6:
+        raise ValueError(f'Invalid quality "{quality}", should be between (1, 6)')
+
+    return _load_model(
+        "cheng2020-attn-deep", metric, quality, pretrained, progress, **kwargs
     )
 

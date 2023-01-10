@@ -33,6 +33,7 @@ from .image import (
     cheng2020_anchor,
     cheng2020_attn,
     cheng2020_attn_shallow,
+    cheng2020_attn_deep,
     mbt2018,
     mbt2018_mean,
 )
@@ -47,6 +48,7 @@ image_models = {
     "cheng2020-anchor": cheng2020_anchor,
     "cheng2020-attn": cheng2020_attn,
     "cheng2020-attn-shallow": cheng2020_attn_shallow,
+    "cheng2020-attn-deep": cheng2020_attn_deep,
 }
 
 video_models = {

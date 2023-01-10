@@ -29,8 +29,15 @@
 
 from .rate_distortion import RateDistortionLoss
 from .rate_distortion import WarpedRDLoss
+from .rate_distortion import FusionRDLoss
+from .rate_distortion import FusionRDLoss_P
+from .rate_distortion import FusionWarpedLoss
+
 
 __all__ = [
     "RateDistortionLoss",
-    "WarpedRDLoss"
+    "WarpedRDLoss",
+    "FusionRDLoss",
+    "FusionRDLoss_P",
+    "FusionWarpedLoss"
 ]
