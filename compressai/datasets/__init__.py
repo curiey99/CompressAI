@@ -33,6 +33,7 @@ from .image import FeatureFolder256_to4
 from .image import FeatureFolderPad
 from .image import FeatureFusion
 from .image import FeatureFusion2
+from .image import FeatureFusion3
 from .pregenerated import PreGeneratedMemmapDataset
 from .rawvideo import *
 from .video import VideoFolder
@@ -47,5 +48,6 @@ __all__ = [
     "FeatureFolder256_to4", 
     "FeatureFolderPad", 
     "FeatureFusion",
-    "FeatureFusion2"
+    "FeatureFusion2",
+    "FeatureFusion3"
 ]
