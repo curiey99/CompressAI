@@ -120,10 +120,10 @@ class FusionRDLoss_P(nn.Module):
 
         out["mse_loss"] = self.mse(output["features"][0], target[0]) + self.mse(output["features"][1], target[1]) + self.mse(output["features"][2], target[2]) + self.mse(output["features"][3], target[3])
 
-        out["p2_mse"] = (torch.square(output["features"][0] - target[0])).mean().clone().detach()
-        out["p3_mse"] = (torch.square(output["features"][1] - target[1])).mean().clone().detach()
-        out["p4_mse"] = (torch.square(output["features"][2] - target[2])).mean().clone().detach()
-        out["p5_mse"] = (torch.square(output["features"][3] - target[3])).mean().clone().detach()
+        out["p2_mse"] = (torch.square(output["features"][0] - target[0])).mean().item()
+        out["p3_mse"] = (torch.square(output["features"][1] - target[1])).mean().item()
+        out["p4_mse"] = (torch.square(output["features"][2] - target[2])).mean().item()
+        out["p5_mse"] = (torch.square(output["features"][3] - target[3])).mean().item()
       
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
 
