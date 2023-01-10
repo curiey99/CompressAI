@@ -742,9 +742,9 @@ class FeatureFusion3(Dataset):
         paddings['p5'] = torch.nn.ZeroPad2d((math.ceil(paddings['w5']/2), math.floor(paddings['w5']/2), math.ceil(paddings['h5']/2), math.floor(paddings['h5']/2)))
 
         p2 = paddings['p2'](p2)
-        p2 = paddings['p3'](p3)
-        p2 = paddings['p4'](p4)
-        p2 = paddings['p5'](p5)
+        p3 = paddings['p3'](p3)
+        p4 = paddings['p4'](p4)
+        p5 = paddings['p5'](p5)
         
         
         # print("p2: {}\np3: {}\np4: {}\np5: {}".format(p2.shape, p3.shape, p4.shape, p5.shape))
