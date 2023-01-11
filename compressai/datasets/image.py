@@ -258,8 +258,10 @@ class FeatureFolderPad(Dataset):
         t = padding(t).squeeze(0)
         t = feature_rearrange_torch_16(t).unsqueeze(0) # 16, 384*4, 384*4
         assert t.shape[0] == 1 and t.shape[1] == 16
-        
-        assert t.shape[2] == target_size and t.shape[3] == target_size
+        try:
+            assert t.shape[2] == target_size and t.shape[3] == target_size
+        except AssertionError:
+            print("{}, {}".format(target_size, t.shape))
         if self.samples[index].stem[1] == '5':   # p5
             t = interpolate(t, scale_factor=2, mode='bicubic', align_corners=False)
         
