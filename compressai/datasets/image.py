@@ -244,15 +244,15 @@ class FeatureFolderPad(Dataset):
         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
         if t.dim() == 3:
             t = t.unsqueeze(0)
+
         h, w = t.shape[2], t.shape[3]
-        if self.samples[index].stem[1] == '2':  # p2
-            hpad, wpad = self.pad-h, self.pad-w
-        elif self.samples[index].stem[1] == '3':    # p3
-            hpad, wpad = self.pad/2-h, self.pad/2-w
-        elif self.samples[index].stem[1] == '4':    # p4
-            hpad, wpad = self.pad/4-h, self.pad/4-w
-        elif self.samples[index].stem[1] == '5': # p5
-            hpad, wpad = self.pad/8-h, self.pad/8-w
+        target_size = self.pad//pow(2, int(self.samples[index].stem[1])-2)
+        if t.shape[2] > target_size:
+            t = interpolate(t, scale_factor = target_size/t.shape[2], mode='bicubic')
+        elif t.shape[3] > target_size:
+            t = interpolate(t, scale_factor = target_size/t.shape[3], mode='bicubic')
+
+        hpad, wpad = target_size-h, target_size-w
         padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
             
         t = padding(t).squeeze(0)
@@ -296,85 +296,6 @@ def feature_rearrange_torch_16(feature): ## 256, 4, 4 ->  16, 16, 16
 
 
 import os
-
-
-
-# @register_dataset("FeatureFolderPad")
-# class FeatureFolderCropP2(Dataset):
-#     """Load an image folder database. Training and testing image samples
-#     are respectively stored in separate directories:
-
-#     Args:
-#         root (string): root directory of the dataset
-#         transform (callable, optional): a function or transform that takes in a
-#             PIL image and returns a transformed version
-#         split (string): split mode ('train' or 'val')
-#     """
-
-#     def __init__(self, root, split="train", crop=None, pad=384, eval=False, scale=None):
-#         splitdir = Path(root) / split
-
-#         if not splitdir.is_dir():
-#             raise RuntimeError(f'Invalid directory "{root}"')
-#         self.scale = scale # '2' , '3', '4', '5'
-#         if self.scale is None:
-#             self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] != '6')]
-#         else:
-#             self.samples = [f for f in splitdir.iterdir() if (f.is_file() and f.stem[1] == self.scale)]
-#         self.crop = crop
-#         self.pad = pad
-#         self.eval = eval
-#         self.split = split
-      
-
-#     def __getitem__(self, index):
-#         """
-#         Args:
-#             index (int): Index
-
-#         Returns:
-#             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
-#         """
-#         t = torch.as_tensor(np.load(self.samples[index], allow_pickle=True).astype('float'))
-#         if t.dim() == 3:
-#             t = t.unsqueeze(0)
-#         h, w = t.shape[2], t.shape[3]
-#         if self.samples[index].stem[1] == '2':  # p2
-#             hpad, wpad = self.pad-h, self.pad-w
-#         elif self.samples[index].stem[1] == '3':    # p3
-#             hpad, wpad = self.pad/2-h, self.pad/2-w
-#         elif self.samples[index].stem[1] == '4':    # p4
-#             hpad, wpad = self.pad/4-h, self.pad/4-w
-#         elif self.samples[index].stem[1] == '5': # p5
-#             hpad, wpad = self.pad/8-h, self.pad/8-w
-#         padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
-            
-#         t = padding(t).squeeze(0)
-#         t = feature_rearrange_torch_16(t).unsqueeze(0) # 16, 384*4, 384*4
-#         assert t.shape[0] == 1 and t.shape[1] == 16
-#         if self.samples[index].stem[1] == '5':   # p5
-#             t = interpolate(t, scale_factor=2, mode='bicubic', align_corners=False)
-        
-#         if not self.eval and self.crop is not None and self.split != 'test':
-#             tt = torch.empty((1, 16, self.crop, self.crop))
-#             r = random.randint(0, t.shape[2]-self.crop)
-#             o = random.randint(0, t.shape[3]-self.crop)
-#             tt = t[:, :, r:r+self.crop, o:o+self.crop]
-#             return tt.float()
-
-#         if self.crop is None and self.samples[index].stem[1] == '2':   # p2
-#             t = interpolate(t, scale_factor=0.5, mode='bicubic')
-        
-        
-#         if self.eval:
-#             return t.float(), h, w, self.samples[index].stem # p2_xxxx (without extension)
-#         else:
-#             return t.float()
-
-#     def __len__(self):
-#         return len(self.samples)
-
-#         ###################
 
 
 
@@ -719,10 +640,6 @@ class FeatureFusion3(Dataset):
         p3_ = torch.as_tensor(np.load(os.path.join(self.root, 'p3', 'p3_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
         p4_ = torch.as_tensor(np.load(os.path.join(self.root, 'p4', 'p4_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
         p5_ = torch.as_tensor(np.load(os.path.join(self.root, 'p5', 'p5_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32)) 
-        # p2 = torch.as_tensor(np.load(os.path.join(self.root, 'p2', 'p2_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
-        # p3 = torch.as_tensor(np.load(os.path.join(self.root, 'p3', 'p3_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
-        # p4 = torch.as_tensor(np.load(os.path.join(self.root, 'p4', 'p4_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
-        # p5 = torch.as_tensor(np.load(os.path.join(self.root, 'p5', 'p5_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))     
         p2 = interpolate(p2_, scale_factor=0.5, mode='bicubic')
         p3=p3_
         p4=p4_
@@ -758,7 +675,6 @@ class FeatureFusion3(Dataset):
         p5 = paddings['p5'](p5)
         
         
-        # print("p2: {}\np3: {}\np4: {}\np5: {}".format(p2.shape, p3.shape, p4.shape, p5.shape))
         try:
             assert p2.shape[2] == self.pad and p2.shape[3] == self.pad
             assert p3.shape[2] == self.pad and p3.shape[3] == self.pad
@@ -769,12 +685,6 @@ class FeatureFusion3(Dataset):
             print("p2: {}\np3: {}\np4: {}\np5: {}".format(p2_.shape, p3_.shape, p4_.shape, p5_.shape))
             for key in paddings:
                 print("{}: {}".format(key, paddings[key]))
-        # print("Assertion Confirmed")
-        # print(p2.shape)
-        # print(paddings['p2'])
-        # print(p5.shape)
-        # print(paddings['p5'])
-
 
         p2 = p2.squeeze(0)
         p3 = p3.squeeze(0)
