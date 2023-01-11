@@ -258,6 +258,8 @@ class FeatureFolderPad(Dataset):
         t = padding(t).squeeze(0)
         t = feature_rearrange_torch_16(t).unsqueeze(0) # 16, 384*4, 384*4
         assert t.shape[0] == 1 and t.shape[1] == 16
+        
+        assert t.shape[2] == target_size and t.shape[3] == target_size
         if self.samples[index].stem[1] == '5':   # p5
             t = interpolate(t, scale_factor=2, mode='bicubic', align_corners=False)
         
@@ -268,6 +270,7 @@ class FeatureFolderPad(Dataset):
             tt = t[:, :, r:r+self.crop, o:o+self.crop]
             return tt.float()
 
+        
         if self.crop is None and self.samples[index].stem[1] == '2':   # p2
             t = interpolate(t, scale_factor=0.5, mode='bicubic')
         
