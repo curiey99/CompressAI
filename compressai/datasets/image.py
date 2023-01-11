@@ -248,8 +248,10 @@ class FeatureFolderPad(Dataset):
         h, w = t.shape[2], t.shape[3]
         target_size = self.pad//pow(2, int(self.samples[index].stem[1])-2)
         if t.shape[2] > target_size:
+            print("{}, {}".format(target_size, t.shape[3]*target_size/t.shape[2]))
             t = interpolate(t, size = (target_size, t.shape[3]*target_size/t.shape[2]), mode='bicubic')
         elif t.shape[3] > target_size:
+            print("{}, {}".format(target_size, t.shape[2]*target_size/t.shape[3]))
             t = interpolate(t, size = (t.shape[2]*target_size/t.shape[3], target_size), mode='bicubic')
 
         hpad, wpad = target_size-h, target_size-w
