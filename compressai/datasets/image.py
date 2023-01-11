@@ -728,6 +728,17 @@ class FeatureFusion3(Dataset):
         p4=p4_
         p5=p5_
         h, w = p2.shape[2], p2.shape[3]
+        if p2.shape[2] > self.pad:
+            p2 = interpolate(p2, scale_factor = self.pad/p2.shape[2], mode='bicubic')
+            p3 = interpolate(p3, scale_factor = self.pad/p3.shape[2], mode='bicubic')
+            p4 = interpolate(p4, scale_factor = (self.pad//2)/p4.shape[2], mode='bicubic')
+            p4 = interpolate(p5, scale_factor = (self.pad//4)/p5.shape[2], mode='bicubic')
+        elif p2.shape[3] > self.pad:
+            p2 = interpolate(p2, scale_factor = self.pad/p2.shape[3], mode='bicubic')
+            p3 = interpolate(p3, scale_factor = self.pad/p3.shape[3], mode='bicubic')
+            p4 = interpolate(p4, scale_factor = (self.pad//2)/p4.shape[2], mode='bicubic')
+            p4 = interpolate(p5, scale_factor = (self.pad//4)/p5.shape[2], mode='bicubic')
+
 
         paddings = {}
         paddings['h2'], paddings['w2'] = self.pad - p2.shape[2], self.pad - p2.shape[3]
