@@ -245,7 +245,6 @@ class FeatureFolderPad(Dataset):
         if t.dim() == 3:
             t = t.unsqueeze(0)
 
-        h, w = t.shape[2], t.shape[3]
         target_size = self.pad//pow(2, int(self.samples[index].stem[1])-2)
         if t.shape[2] > target_size:
             # print("{}, {}".format(target_size, round(t.shape[3]*target_size/t.shape[2])))
@@ -253,7 +252,8 @@ class FeatureFolderPad(Dataset):
         elif t.shape[3] > target_size:
             # print("{}, {}".format(target_size, t.shape[2]*target_size/t.shape[3]))
             t = interpolate(t, size = (round(t.shape[2]*target_size/t.shape[3]), target_size), mode='bicubic')
-
+        
+        h, w = t.shape[2], t.shape[3]
         hpad, wpad = target_size-h, target_size-w
         padding = torch.nn.ZeroPad2d((math.ceil(wpad/2),math.floor(wpad/2), math.ceil(hpad/2), math.floor(hpad/2)))
             
