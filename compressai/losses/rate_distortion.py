@@ -130,6 +130,7 @@ class FusionRDLoss_P(nn.Module):
         return out
 
 
+
 @register_criterion("FusionRDLoss_P")
 class FusionRDLoss2(nn.Module):
     """Custom rate distortion loss with a Lagrangian parameter."""
@@ -237,16 +238,10 @@ class FusionWarpedLoss(nn.Module):
         
 
 
-        out["p2_mse"] = p2_mse.mean().clone().detach()
-        out["p3_mse"] = p3_mse.mean().clone().detach()
-        out["p4_mse"] = p4_mse.mean().clone().detach()
-        out["p5_mse"] = p5_mse.mean().clone().detach()
-
-#         print("device:\n{}, {}\ngrad:\n{}, {}\n\n".format(p2_mse.device, p2_mse.requires_grad, out["p2_mse"].device, out["p2_mse"].requires_grad))
-            # device:
-            # cuda:0, True
-            # grad:
-            # cuda:0, False
+        out["p2_mse"] = p2_mse.mean().item()
+        out["p3_mse"] = p3_mse.mean().item()
+        out["p4_mse"] = p4_mse.mean().item()
+        out["p5_mse"] = p5_mse.mean().item()
         out["mse_loss"] = torch.mean(out["p2_mseloss"]) + torch.mean(out["p3_mseloss"]) + torch.mean(out["p4_mseloss"]) + torch.mean(out["p5_mseloss"])
 
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
