@@ -249,6 +249,74 @@ class FusionWarpedLoss(nn.Module):
         return out
 
 
+
+@register_criterion("FusionWarpedLoss_Pwise")
+class FusionWarpedLoss_Pwise(nn.Module):
+    """Custom rate distortion loss with a Lagrangian parameter."""
+
+    def __init__(self, lmbda=1e-2, 
+        p2_alpha=1.1, p2_beta=0.05,
+        p3_alpha=0.47, p3_beta=0.05,
+        p4_alpha=0.35, p4_beta=0.05,
+        p5_alpha=1.28, p5_beta=0.05,
+        
+        ):
+        super().__init__()
+        self.mse = nn.MSELoss()
+        self.lmbda = lmbda
+
+        self.p2_alpha, self.p2_beta = p2_alpha, p2_beta
+        self.p3_alpha, self.p3_beta = p3_alpha, p3_beta
+        self.p4_alpha, self.p4_beta = p4_alpha, p4_beta
+        self.p5_alpha, self.p5_beta = p5_alpha, p5_beta
+        
+
+    def forward(self, output, target): 
+        # out_net,                                  , d
+        # dict{"features"(list), "likelihoods"}     , list[p2~p5]
+        out = {}
+        num_pixels = 0
+        
+        for p in target:
+            N, _, H, W = p.size()
+            num_pixels += N * H * W
+            
+
+        out["bpp_loss"] = sum(
+            (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
+            for likelihoods in output["likelihoods"].values()
+        )
+
+        p2_mse = torch.square(output["features"][0] - target[0])
+        p3_mse = torch.square(output["features"][1] - target[1])
+        p4_mse = torch.square(output["features"][2] - target[2])
+        p5_mse = torch.square(output["features"][3] - target[3])
+
+        # out["p2_lambda"] = torch.sigmoid((p2_mse-self.alpha)/self.beta)
+        # out["p3_lambda"] = torch.sigmoid((p3_mse-self.alpha)/self.beta)
+        # out["p4_lambda"] = torch.sigmoid((p4_mse-self.alpha)/self.beta)
+        # out["p5_lambda"] = torch.sigmoid((p5_mse-self.alpha)/self.beta)
+        
+
+
+        out["p2_mseloss"] = p2_mse * torch.sigmoid((p2_mse-self.p2_alpha)/self.p2_beta)
+        out["p3_mseloss"] = p3_mse * torch.sigmoid((p3_mse-self.p3_alpha)/self.p3_beta)
+        out["p4_mseloss"] = p4_mse * torch.sigmoid((p4_mse-self.p4_alpha)/self.p4_beta)
+        out["p5_mseloss"] = p5_mse * torch.sigmoid((p5_mse-self.p5_alpha)/self.p5_beta)
+        
+
+
+        out["p2_mse"] = p2_mse.mean().item()
+        out["p3_mse"] = p3_mse.mean().item()
+        out["p4_mse"] = p4_mse.mean().item()
+        out["p5_mse"] = p5_mse.mean().item()
+        out["mse_loss"] = torch.mean(out["p2_mseloss"]) + torch.mean(out["p3_mseloss"]) + torch.mean(out["p4_mseloss"]) + torch.mean(out["p5_mseloss"])
+
+        out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
+
+        return out
+
+
 @register_criterion("WarpedRDLoss")
 class WarpedRDLoss(nn.Module):
     def __init__(self, lmbda=1e-2, alpha=1, beta=0.05):
@@ -279,43 +347,6 @@ class WarpedRDLoss(nn.Module):
 
         return out
 
-
-
-@register_criterion("OnlyMSE")
-class OnlyMSE(nn.Module):
-    """Custom rate distortion loss with a Lagrangian parameter."""
-
-    def __init__(self, lmbda=1e-2):
-        super().__init__()
-        self.mse = nn.MSELoss()
-        self.lmbda = lmbda
-
-    def forward(self, output, target): 
-        # out_net,                                  , d
-        # dict{"features"(list), "likelihoods"}     , list[p2~p5]
-        out = {}
-        # num_pixels = 0
-        
-        # for p in target:
-        #     N, _, H, W = p.size()
-        #     num_pixels += N * H * W
-            
-
-        # out["bpp_loss"] = sum(
-        #     (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
-        #     for likelihoods in output["likelihoods"].values()
-        # )
-
-        out["loss"] = self.mse(output["features"][0], target[0]) + self.mse(output["features"][1], target[1]) + self.mse(output["features"][2], target[2]) + self.mse(output["features"][3], target[3])
-
-        out["p2_mse"] = (torch.square(output["features"][0] - target[0])).mean().item()
-        out["p3_mse"] = (torch.square(output["features"][1] - target[1])).mean().item()
-        out["p4_mse"] = (torch.square(output["features"][2] - target[2])).mean().item()
-        out["p5_mse"] = (torch.square(output["features"][3] - target[3])).mean().item()
-      
-        # out["loss"] = self.lmbda * 255**2 * out["mse_loss"]
-
-        return out
 
 
 

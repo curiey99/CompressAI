@@ -709,8 +709,91 @@ class FeatureFusion3(Dataset):
 
 
 
-@register_dataset("FeatureFusion24")
+@register_dataset("FeatureFusion4")
 class FeatureFusion4(Dataset):
+
+    def __init__(self, root, pad=320, eval=False):
+        p5dir = Path(root) / 'p5'
+        if not p5dir.is_dir():
+            raise RuntimeError(f'Invalid directory "{root}"')
+        self.root = root
+        self.IDs = [f.stem[3:] for f in p5dir.iterdir() if (f.is_file() and  f.stem[1] == '5')]
+        self.pad = pad
+        self.eval = eval
+   
+
+    def __getitem__(self, index):
+
+        origin_shape = []
+        p2 = torch.as_tensor(np.load(os.path.join(self.root, 'p2', 'p2_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
+        p3 = torch.as_tensor(np.load(os.path.join(self.root, 'p3', 'p3_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
+        p4 = torch.as_tensor(np.load(os.path.join(self.root, 'p4', 'p4_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32))
+        p5 = torch.as_tensor(np.load(os.path.join(self.root, 'p5', 'p5_{}.npy'.format(self.IDs[index])), allow_pickle=True).astype(np.float32)) 
+        origin_shape.append((p2.shape[2], p2.shape[3]))
+        origin_shape.append((p3.shape[2], p3.shape[3]))
+        origin_shape.append((p4.shape[2], p4.shape[3]))
+        origin_shape.append((p5.shape[2], p5.shape[3]))
+        
+
+        h, w = p2.shape[2], p2.shape[3]
+        if p2.shape[2] > self.pad:
+            p2 = interpolate(p2, scale_factor = self.pad/p2.shape[2], mode='bicubic')
+            p3 = interpolate(p3, scale_factor = (self.pad//2)/p3.shape[2], mode='bicubic')
+            p4 = interpolate(p4, scale_factor = (self.pad//4)/p4.shape[2], mode='bicubic')
+            p4 = interpolate(p5, scale_factor = (self.pad//8)/p5.shape[2], mode='bicubic')
+        elif p2.shape[3] > self.pad:
+            p2 = interpolate(p2, scale_factor = self.pad/p2.shape[3], mode='bicubic')
+            p3 = interpolate(p3, scale_factor = (self.pad//2)/p3.shape[3], mode='bicubic')
+            p4 = interpolate(p4, scale_factor = (self.pad//4)/p4.shape[2], mode='bicubic')
+            p4 = interpolate(p5, scale_factor = (self.pad//8)/p5.shape[2], mode='bicubic')
+
+
+        paddings = {}
+        paddings['h2'], paddings['w2'] = self.pad - p2.shape[2], self.pad - p2.shape[3]
+        paddings['h3'], paddings['w3'] = self.pad//2 - p3.shape[2], self.pad//2 - p3.shape[3]
+        paddings['h4'], paddings['w4'] = self.pad//4 - p4.shape[2], self.pad//4 - p4.shape[3]
+        paddings['h5'], paddings['w5'] = self.pad//8 - p5.shape[2], self.pad//8 - p5.shape[3]
+
+
+        paddings['p2'] = torch.nn.ZeroPad2d((math.ceil(paddings['w2']/2), math.floor(paddings['w2']/2), math.ceil(paddings['h2']/2), math.floor(paddings['h2']/2)))
+        paddings['p3'] = torch.nn.ZeroPad2d((math.ceil(paddings['w3']/2), math.floor(paddings['w3']/2), math.ceil(paddings['h3']/2), math.floor(paddings['h3']/2)))
+        paddings['p4'] = torch.nn.ZeroPad2d((math.ceil(paddings['w4']/2), math.floor(paddings['w4']/2), math.ceil(paddings['h4']/2), math.floor(paddings['h4']/2)))
+        paddings['p5'] = torch.nn.ZeroPad2d((math.ceil(paddings['w5']/2), math.floor(paddings['w5']/2), math.ceil(paddings['h5']/2), math.floor(paddings['h5']/2)))
+
+        p2 = paddings['p2'](p2)
+        p3 = paddings['p3'](p3)
+        p4 = paddings['p4'](p4)
+        p5 = paddings['p5'](p5)
+        
+        
+        try:
+            assert p2.shape[2] == self.pad and p2.shape[3] == self.pad
+            assert p3.shape[2] == self.pad//2 and p3.shape[3] == self.pad//2
+            assert p4.shape[2] == self.pad//4 and p4.shape[3] == self.pad//4
+            assert p5.shape[2] == self.pad//8 and p5.shape[3] == self.pad//8
+        except AssertionError:
+            print(origin_shape)
+            print("p2: {}\np3: {}\np4: {}\np5: {}".format(p2.shape, p3.shape, p4.shape, p5.shape))
+            for key in paddings:
+                print("{}: {}".format(key, paddings[key]))
+
+        p2 = p2.squeeze(0)
+        p3 = p3.squeeze(0)
+        p4 = p4.squeeze(0)
+        p5 = p5.squeeze(0)
+        if self.eval:
+            return [p2, p3, p4, p5], paddings
+        else:
+            return [p2, p3, p4, p5]
+
+    def __len__(self):
+        return len(self.IDs)
+
+        ###################
+
+
+@register_dataset("FeatureFusion5")
+class FeatureFusion5(Dataset):
 
     def __init__(self, root, pad=320, eval=False):
         p5dir = Path(root) / 'p5'
