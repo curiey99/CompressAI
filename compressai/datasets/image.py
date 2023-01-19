@@ -41,6 +41,34 @@ import torch
 import math
 from compressai.datasets import tiling
 import random
+import cv2
+
+
+@register_dataset("ImageCv2")
+class ImageCv2(Dataset):
+
+    def __init__(self, root, transform=None, split="train"):
+        splitdir = Path(root) / split
+
+        if not splitdir.is_dir():
+            raise RuntimeError(f'Invalid directory "{root}"')
+
+        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
+        """
+        img = cv2.imread(self.samples[index])
+        return img
+
+    def __len__(self):
+        return len(self.samples)
+
 
 @register_dataset("ImageFolder")
 class ImageFolder(Dataset):

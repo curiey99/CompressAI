@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from .image import ImageFolder
+from .image import ImageCv2
 from .image import FeatureFolderScale
 from .image import FeatureFolder256_to4
 from .image import FeatureFolderPad
@@ -51,5 +52,6 @@ __all__ = [
     "FeatureFusion",
     "FeatureFusion2",
     "FeatureFusion3",
-    "FeatureFusion4"
+    "FeatureFusion4",
+    "ImageCv2"
 ]
