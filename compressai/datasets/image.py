@@ -48,12 +48,12 @@ import cv2
 class ImageCv2(Dataset):
 
     def __init__(self, root, transform=None, split="train"):
-        splitdir = Path(root) / split
+        self.splitdir = Path(root) / split
 
-        if not splitdir.is_dir():
+        if not self.splitdir.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
 
-        self.samples = [f for f in splitdir.iterdir() if f.is_file()]
+        self.samples = [f for f in self.splitdir.iterdir() if f.is_file()]
 
     def __getitem__(self, index):
         """
@@ -63,7 +63,7 @@ class ImageCv2(Dataset):
         Returns:
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
-        img = cv2.imread(self.samples[index])
+        img = cv2.imread(os.path.join(self.splitdir, self.samples[index]))
         return img
 
     def __len__(self):
