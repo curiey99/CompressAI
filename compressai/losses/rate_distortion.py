@@ -255,20 +255,20 @@ class FusionWarpedLoss_Pwise(nn.Module):
     """Custom rate distortion loss with a Lagrangian parameter."""
 
     def __init__(self, lmbda=1e-2, 
-        p2_alpha=1.1, p2_beta=0.05,
-        p3_alpha=0.47, p3_beta=0.05,
-        p4_alpha=0.35, p4_beta=0.05,
-        p5_alpha=1.28, p5_beta=0.05,
-        
+        p2_alpha=1.1, p2_beta=0.005,
+        p3_alpha=0.48, p3_beta=0.005,
+        p4_alpha=0.35, p4_beta=0.005,
+        p5_alpha=1.3, p5_beta=0.005,
+        alpha_w=1.0, beta_w=1.0
         ):
         super().__init__()
         self.mse = nn.MSELoss()
         self.lmbda = lmbda
 
-        self.p2_alpha, self.p2_beta = p2_alpha, p2_beta
-        self.p3_alpha, self.p3_beta = p3_alpha, p3_beta
-        self.p4_alpha, self.p4_beta = p4_alpha, p4_beta
-        self.p5_alpha, self.p5_beta = p5_alpha, p5_beta
+        self.p2_alpha, self.p2_beta = p2_alpha * alpha_w, p2_beta * beta_w
+        self.p3_alpha, self.p3_beta = p3_alpha * alpha_w, p3_beta * beta_w
+        self.p4_alpha, self.p4_beta = p4_alpha * alpha_w, p4_beta * beta_w
+        self.p5_alpha, self.p5_beta = p5_alpha * alpha_w, p5_beta * beta_w
         
 
     def forward(self, output, target): 
