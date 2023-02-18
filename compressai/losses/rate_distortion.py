@@ -224,11 +224,6 @@ class FusionWarpedLoss(nn.Module):
         p4_mse = torch.square(output["features"][2] - target[2])
         p5_mse = torch.square(output["features"][3] - target[3])
 
-        # out["p2_lambda"] = torch.sigmoid((p2_mse-self.alpha)/self.beta)
-        # out["p3_lambda"] = torch.sigmoid((p3_mse-self.alpha)/self.beta)
-        # out["p4_lambda"] = torch.sigmoid((p4_mse-self.alpha)/self.beta)
-        # out["p5_lambda"] = torch.sigmoid((p5_mse-self.alpha)/self.beta)
-        
 
 
         out["p2_mseloss"] = p2_mse * torch.sigmoid((p2_mse-self.alpha)/self.beta)
@@ -347,6 +342,66 @@ class WarpedRDLoss(nn.Module):
 
         return out
 
+
+@register_criterion("SpatialMedoLoss")
+class SpatialMedoLoss(nn.Module):
+    """Custom rate distortion loss with a Lagrangian parameter."""
+
+    def __init__(self, lmbda=1e-2, alpha=1.0, beta=0.05):
+        super().__init__()
+        self.mse = nn.MSELoss()
+        self.lmbda = lmbda
+
+        self.alpha = alpha
+        self.beta = beta
+
+    def forward(self, output, target, mask, mask_coef=1.0): 
+        # out_net,                                  , d
+        # dict{"features"(list), "likelihoods"}     , list[p2~p5]
+        out = {}
+        num_pixels = 0
+        
+        for p in target:
+            N, _, H, W = p.size()
+            num_pixels += N * H * W
+            
+
+        out["bpp_loss"] = sum(
+            (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
+            for likelihoods in output["likelihoods"].values()
+        )
+
+        p2_mse = torch.square(output["features"][0] - target[0])
+        p3_mse = torch.square(output["features"][1] - target[1])
+        p4_mse = torch.square(output["features"][2] - target[2])
+        p5_mse = torch.square(output["features"][3] - target[3])
+
+        p2_mask = mask * mask_coef
+        p3_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.5, mode='bilinear', align_corners=False, antialias=True)
+        p4_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.25, mode='bilinear', align_corners=False, antialias=True)
+        p5_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.125, mode='bilinear', align_corners=False, antialias=True)
+        
+        p3_mask = p3_mask / torch.max(p3_mask)
+        p4_mask = p4_mask / torch.max(p4_mask)
+        p5_mask = p5_mask / torch.max(p5_mask)
+
+
+        out["p2_mseloss"] = p2_mse * p2_mask
+        out["p3_mseloss"] = p3_mse * p3_mask
+        out["p4_mseloss"] = p4_mse * p4_mask
+        out["p5_mseloss"] = p5_mse * p5_mask
+        
+
+
+        out["p2_mse"] = p2_mse.mean().item()
+        out["p3_mse"] = p3_mse.mean().item()
+        out["p4_mse"] = p4_mse.mean().item()
+        out["p5_mse"] = p5_mse.mean().item()
+        out["mse_loss"] = torch.mean(out["p2_mseloss"]) + torch.mean(out["p3_mseloss"]) + torch.mean(out["p4_mseloss"]) + torch.mean(out["p5_mseloss"])
+
+        out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
+
+        return out
 
 
 
