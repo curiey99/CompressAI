@@ -376,7 +376,7 @@ class SpatialMedoLoss(nn.Module):
         p4_mse = torch.square(output["features"][2] - target[2])
         p5_mse = torch.square(output["features"][3] - target[3])
 
-        p2_mask = mask * mask_coef
+        p2_mask = 1.0 - ((1.0 - mask) * mask_coef)
         p3_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.5, mode='bilinear', align_corners=False, antialias=True)
         p4_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.25, mode='bilinear', align_corners=False, antialias=True)
         p5_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.125, mode='bilinear', align_corners=False, antialias=True)
