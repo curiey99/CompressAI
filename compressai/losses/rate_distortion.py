@@ -371,8 +371,8 @@ class SpatialMedoLoss(nn.Module):
             for likelihoods in output["likelihoods"].values()
         )
 
-        print(type(out["bpp_loss"]))
         if torch.any(torch.isnan(out['bpp_loss'])):
+            print("\nbpp loss has NaN")
             print(torch.all(torch.isnan(out['bpp_loss'])))
 
 
@@ -381,38 +381,105 @@ class SpatialMedoLoss(nn.Module):
         p4_mse = torch.square(output["features"][2] - target[2]) + 0.00000001
         p5_mse = torch.square(output["features"][3] - target[3]) + 0.00000001
 
+        if torch.any(torch.isnan(p2_mse)):
+            print("\np2 mse has NaN")
+            print(torch.all(torch.isnan(p2_mse)))
+        elif torch.any(torch.isinf(p2_mse)):
+            print("\np2 mse has INF")
+            print(torch.all(torch.isinf(p2_mse)))
+        
+        if torch.any(torch.isnan(p3_mse)):
+            print("\np3 mse has NaN")
+            print(torch.all(torch.isnan(p3_mse)))
+        elif torch.any(torch.isinf(p3_mse)):
+            print("\np3 mse has INF")
+            print(torch.all(torch.isinf(p3_mse)))
+        
+        if torch.any(torch.isnan(p4_mse)):
+            print("\np4 mse has NaN")
+            print(torch.all(torch.isnan(p4_mse)))
+        elif torch.any(torch.isinf(p4_mse)):
+            print("\np4 mse has INF")
+            print(torch.all(torch.isinf(p4_mse)))
+        
+        if torch.any(torch.isnan(p5_mse)):
+            print("\np5 mse has NaN")
+            print(torch.all(torch.isnan(p5_mse)))
+        elif torch.any(torch.isinf(p5_mse)):
+            print("\np5 mse has INF")
+            print(torch.all(torch.isinf(p5_mse)))
+        
+
+
         p2_mask = 1.0 - ((1.0 - mask) * mask_coef)
         if torch.max(p2_mask) == 0:
             p2_mask = torch.clamp(p2_mask + 0.00000001, max=1.0)
         p2_mask = p2_mask / torch.max(p2_mask)
         p2_mask = torch.clamp(p2_mask + 0.00000001, max=1.0)
+
+        
+        assert torch.min(p2_mask) >= 0 and torch.max(p2_mask) <= 1
+
         p3_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.5, mode='bilinear', align_corners=False, antialias=True)
         p4_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.25, mode='bilinear', align_corners=False, antialias=True)
         p5_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.125, mode='bilinear', align_corners=False, antialias=True)
         
+        if torch.any(torch.isnan(p2_mask)):
+            print("\np2 mask is NaN")
+            print(torch.all(torch.isnan(p2_mask)))
 
         if torch.max(p3_mask) == 0:
             p3_mask = torch.clamp(p3_mask + 0.00000001, max=1.0)
         p3_mask = p3_mask / torch.max(p3_mask)
         p3_mask = torch.clamp(p3_mask + 0.00000001, max=1.0)
 
+        assert torch.min(p3_mask) >= 0 and torch.max(p3_mask) <= 1
+
         if torch.max(p4_mask) == 0:
             p4_mask = torch.clamp(p3_mask + 0.00000001, max=1.0)
         p4_mask = p4_mask / torch.max(p4_mask)
         p4_mask = torch.clamp(p4_mask + 0.00000001, max=1.0)
+        
+        assert torch.min(p4_mask) >= 0 and torch.max(p4_mask) <= 1
+
 
         if torch.max(p5_mask) == 0:
             p5_mask = torch.clamp(p5_mask + 0.00000001, max=1.0)
         p5_mask = p5_mask / torch.max(p5_mask)
         p5_mask = torch.clamp(p5_mask + 0.00000001, max=1.0)
 
-
+        
+        assert torch.min(p5_mask) >= 0 and torch.max(p5_mask) <= 1
 
 
         out["p2_mseloss"] = p2_mse * p2_mask
+        if torch.any(torch.isnan(out["p2_mseloss"])):
+            print("\nOUT_p2 has NaN")
+            print(torch.all(torch.isnan(out["p2_mseloss"])))
+        elif torch.any(torch.isinf(out["p2_mseloss"])):
+            print("\nOUT_p2 has INF")
+            print(torch.all(torch.isinf(out["p2_mseloss"])))
+        
         out["p3_mseloss"] = p3_mse * p3_mask
+        if torch.any(torch.isnan(out["p3_mseloss"])):
+            print("\nOUT_p3 has NaN")
+            print(torch.all(torch.isnan(out["p3_mseloss"])))
+        elif torch.any(torch.isinf(out["p3_mseloss"])):
+            print("\nOUT_p3 has INF")
+
         out["p4_mseloss"] = p4_mse * p4_mask
+        if torch.any(torch.isnan(out["p4_mseloss"])):
+            print("\nOUT_p4 has NaN")
+            print(torch.all(torch.isnan(out["p4_mseloss"])))
+        elif torch.any(torch.isinf(out["p4_mseloss"])):
+            print("\nOUT_p4 has INF")
+
         out["p5_mseloss"] = p5_mse * p5_mask
+        if torch.any(torch.isnan(out["p5_mseloss"])):
+            print("\nOUT_p5 has NaN")
+            print(torch.all(torch.isnan(out["p5_mseloss"])))
+        elif torch.any(torch.isinf(out["p5_mseloss"])):
+            print("\nOUT_p5 has INF")
         
 
 
