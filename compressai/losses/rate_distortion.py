@@ -371,6 +371,11 @@ class SpatialMedoLoss(nn.Module):
             for likelihoods in output["likelihoods"].values()
         )
 
+        print(type(out["bpp_loss"]))
+        if torch.any(torch.isnan(out['bpp_loss'])):
+            print(torch.all(torch.isnan(out['bpp_loss'])))
+
+
         p2_mse = torch.square(output["features"][0] - target[0]) + 0.00000001
         p3_mse = torch.square(output["features"][1] - target[1]) + 0.00000001
         p4_mse = torch.square(output["features"][2] - target[2]) + 0.00000001
