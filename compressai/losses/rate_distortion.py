@@ -414,10 +414,7 @@ class SpatialMedoLoss(nn.Module):
             print("AAAAAAAAAAAAAAAAA")
 
 
-        if torch.min(mask) < 0 or torch.max(mask) > 1:
-            print("\n(1)")
-            print("p2 mask: min {}, max {}".format(torch.min(mask), torch.max(mask)))
-
+       
         p2_mask = 1.0 - ((1.0 - mask) * mask_coef)
 
         if torch.any(torch.isnan(p2_mask)):
@@ -427,10 +424,10 @@ class SpatialMedoLoss(nn.Module):
             print("\n(2)")
             print("p2 mask: min {}, max {}".format(torch.min(p2_mask), torch.max(p2_mask)))
 
-        if torch.max(p2_mask) < 0:
-            p2_mask = torch.clamp(p2_mask + 0.00000001, max=1.0)
+        if torch.min(p2_mask) == 0:
+            p2_mask = torch.clamp(p2_mask, min=0.00000001, max=1.0)
         p2_mask = p2_mask / torch.max(p2_mask)
-
+        p2_mask = torch.clamp(p2_mask, min=0.00000001, max=1.0)
         if torch.any(torch.isnan(p2_mask)):
             print("CCCCCCCCCCC")
 
@@ -441,7 +438,7 @@ class SpatialMedoLoss(nn.Module):
 
 
 
-        p2_mask = torch.clamp(p2_mask + 0.00000001, max=1.0)
+        p2_mask = torch.clamp(p2_mask, min=0.00000001, max=1.0)
 
         
         assert torch.min(p2_mask) >= 0 and torch.max(p2_mask) <= 1
@@ -454,25 +451,22 @@ class SpatialMedoLoss(nn.Module):
             print("\np2 mask is NaN")
             print(torch.all(torch.isnan(p2_mask)))
 
-        if torch.max(p3_mask) == 0:
-            p3_mask = torch.clamp(p3_mask + 0.00000001, max=1.0)
+        p3_mask = torch.clamp(p3_mask, min=0.00000001, max=1.0)
         p3_mask = p3_mask / torch.max(p3_mask)
-        p3_mask = torch.clamp(p3_mask + 0.00000001, max=1.0)
+        p3_mask = torch.clamp(p3_mask, min=0.00000001, max=1.0)
 
         assert torch.min(p3_mask) >= 0 and torch.max(p3_mask) <= 1
 
-        if torch.max(p4_mask) == 0:
-            p4_mask = torch.clamp(p3_mask + 0.00000001, max=1.0)
+        p4_mask = torch.clamp(p4_mask, min=0.00000001, max=1.0)
         p4_mask = p4_mask / torch.max(p4_mask)
-        p4_mask = torch.clamp(p4_mask + 0.00000001, max=1.0)
+        p4_mask = torch.clamp(p4_mask, min=0.00000001, max=1.0)
         
         assert torch.min(p4_mask) >= 0 and torch.max(p4_mask) <= 1
 
 
-        if torch.max(p5_mask) == 0:
-            p5_mask = torch.clamp(p5_mask + 0.00000001, max=1.0)
+        p5_mask = torch.clamp(p5_mask, min=0.00000001, max=1.0)
         p5_mask = p5_mask / torch.max(p5_mask)
-        p5_mask = torch.clamp(p5_mask + 0.00000001, max=1.0)
+        p5_mask = torch.clamp(p5_mask, min=0.00000001, max=1.0)
 
         
         assert torch.min(p5_mask) >= 0 and torch.max(p5_mask) <= 1
