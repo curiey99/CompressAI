@@ -347,13 +347,13 @@ class WarpedRDLoss(nn.Module):
 class SpatialMedoLoss(nn.Module):
     """Custom rate distortion loss with a Lagrangian parameter."""
 
-    def __init__(self, lmbda=1e-2, alpha=1.0, beta=0.05):
+    def __init__(self, lmbda=1e-2):#, alpha=1.0, beta=0.05):
         super().__init__()
         self.mse = nn.MSELoss()
         self.lmbda = lmbda
 
-        self.alpha = alpha
-        self.beta = beta
+        # self.alpha = alpha
+        # self.beta = beta
 
     def forward(self, output, target, mask, mask_coef=1.0): 
         # out_net,                                  , d
