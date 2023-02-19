@@ -371,10 +371,10 @@ class SpatialMedoLoss(nn.Module):
             for likelihoods in output["likelihoods"].values()
         )
 
-        p2_mse = torch.square(output["features"][0] - target[0])
-        p3_mse = torch.square(output["features"][1] - target[1])
-        p4_mse = torch.square(output["features"][2] - target[2])
-        p5_mse = torch.square(output["features"][3] - target[3])
+        p2_mse = torch.square(output["features"][0] - target[0]) + 0.00000001
+        p3_mse = torch.square(output["features"][1] - target[1]) + 0.00000001
+        p4_mse = torch.square(output["features"][2] - target[2]) + 0.00000001
+        p5_mse = torch.square(output["features"][3] - target[3]) + 0.00000001
 
         p2_mask = 1.0 - ((1.0 - mask) * mask_coef)
         p2_mask = p2_mask / torch.max(p2_mask)
