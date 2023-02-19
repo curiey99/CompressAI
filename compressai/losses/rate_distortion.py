@@ -416,7 +416,7 @@ class SpatialMedoLoss(nn.Module):
 
        
         p2_mask = 1.0 - ((1.0 - mask) * mask_coef)
-
+        p2_mask = torch.clamp(p2_mask, min=0.00000001, max=1.0)
         if torch.any(torch.isnan(p2_mask)):
             print("BBBBBBBBBBBBBBB")
 
