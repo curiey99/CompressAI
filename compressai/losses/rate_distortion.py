@@ -409,12 +409,38 @@ class SpatialMedoLoss(nn.Module):
             print("\np5 mse has INF")
             print(torch.all(torch.isinf(p5_mse)))
         
+        
+        if torch.any(torch.isnan(mask)):
+            print("AAAAAAAAAAAAAAAAA")
 
+
+        if torch.min(mask) < 0 or torch.max(mask) > 1:
+            print("\n(1)")
+            print("p2 mask: min {}, max {}".format(torch.min(mask), torch.max(mask)))
 
         p2_mask = 1.0 - ((1.0 - mask) * mask_coef)
-        if torch.max(p2_mask) == 0:
+
+        if torch.any(torch.isnan(p2_mask)):
+            print("BBBBBBBBBBBBBBB")
+
+        if torch.min(p2_mask) < 0 or torch.max(p2_mask) > 1:
+            print("\n(2)")
+            print("p2 mask: min {}, max {}".format(torch.min(p2_mask), torch.max(p2_mask)))
+
+        if torch.max(p2_mask) < 0:
             p2_mask = torch.clamp(p2_mask + 0.00000001, max=1.0)
         p2_mask = p2_mask / torch.max(p2_mask)
+
+        if torch.any(torch.isnan(p2_mask)):
+            print("CCCCCCCCCCC")
+
+
+        if torch.min(p2_mask) < 0 or torch.max(p2_mask) > 1:
+            print("\n(3)")
+            print("p2 mask: min {}, max {}".format(torch.min(p2_mask), torch.max(p2_mask)))
+
+
+
         p2_mask = torch.clamp(p2_mask + 0.00000001, max=1.0)
 
         
