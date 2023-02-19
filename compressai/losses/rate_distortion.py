@@ -367,7 +367,7 @@ class SpatialMedoLoss(nn.Module):
             
 
         out["bpp_loss"] = sum(
-            (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
+            (torch.log(likelihoods+1e-07).sum() / (-math.log(2) * num_pixels))
             for likelihoods in output["likelihoods"].values()
         )
 
@@ -382,8 +382,11 @@ class SpatialMedoLoss(nn.Module):
         p5_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.125, mode='bilinear', align_corners=False, antialias=True)
         
         p3_mask = p3_mask / torch.max(p3_mask)
+        p3_mask = torch.clamp(p3_mask + 0.0000001, max=1.0)
         p4_mask = p4_mask / torch.max(p4_mask)
+        p4_mask = torch.clamp(p4_mask + 0.0000001, max=1.0)
         p5_mask = p5_mask / torch.max(p5_mask)
+        p5_mask = torch.clamp(p5_mask + 0.0000001, max=1.0)
 
 
         out["p2_mseloss"] = p2_mse * p2_mask
