@@ -176,6 +176,7 @@ class FusionWarpedLoss(nn.Module):
         out["p3_mse"] = p3_mse.mean().item()
         out["p4_mse"] = p4_mse.mean().item()
         out["p5_mse"] = p5_mse.mean().item()
+        print("BASE LOSS:", out["p2_mse"])
         out["mse_loss"] = torch.mean(out["p2_mseloss"]) + torch.mean(out["p3_mseloss"]) + torch.mean(out["p4_mseloss"]) + torch.mean(out["p5_mseloss"])
 
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
@@ -301,26 +302,26 @@ class SpatialMedoLoss(nn.Module):
             
 
         out["bpp_loss"] = sum(
-            (torch.log(likelihoods + 0.00000001).sum() / (-math.log(2) * num_pixels))
+            (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
             for likelihoods in output["likelihoods"].values()
         )
 
 
-        p2_mse = torch.square(output["features"][0] - target[0]) + 0.00000001
-        p3_mse = torch.square(output["features"][1] - target[1]) + 0.00000001
-        p4_mse = torch.square(output["features"][2] - target[2]) + 0.00000001
-        p5_mse = torch.square(output["features"][3] - target[3]) + 0.00000001
+        p2_mse = torch.square(output["features"][0] - target[0])# + 0.00000001
+        p3_mse = torch.square(output["features"][1] - target[1])# + 0.00000001
+        p4_mse = torch.square(output["features"][2] - target[2])# + 0.00000001
+        p5_mse = torch.square(output["features"][3] - target[3])# + 0.00000001
 
         
        
         p2_mask = 1.0 - ((1.0 - mask) * mask_coef)
-        p2_mask = torch.clamp(p2_mask, min=0.00000001, max=1.0)
+        p2_mask = torch.clamp(p2_mask, min=0.000000001, max=1.0)
         
        
         if torch.min(p2_mask) == 0:
-            p2_mask = torch.clamp(p2_mask, min=0.00000001, max=1.0)
+            p2_mask = torch.clamp(p2_mask, min=0.000000001, max=1.0)
         p2_mask = p2_mask / torch.max(p2_mask)
-        p2_mask = torch.clamp(p2_mask, min=0.00000001, max=1.0)
+        p2_mask = torch.clamp(p2_mask, min=0.000000001, max=1.0)
        
 
         p3_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.5, mode='bilinear', align_corners=False, antialias=True)
@@ -351,15 +352,16 @@ class SpatialMedoLoss(nn.Module):
         
         out["p5_mseloss"] = p5_mse * p5_mask
         
+        out["mse_loss"] = torch.mean(out["p2_mseloss"]) + torch.mean(out["p3_mseloss"]) + torch.mean(out["p4_mseloss"]) + torch.mean(out["p5_mseloss"])   
 
 
         out["p2_mse"] = p2_mse.mean().item()
         out["p3_mse"] = p3_mse.mean().item()
         out["p4_mse"] = p4_mse.mean().item()
         out["p5_mse"] = p5_mse.mean().item()
-        out["mse_loss"] = torch.mean(out["p2_mseloss"]) + torch.mean(out["p3_mseloss"]) + torch.mean(out["p4_mseloss"]) + torch.mean(out["p5_mseloss"])
-
+        
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
+        print("MEDO LOSS:", out["p2_mse"])
 
         return out
 
