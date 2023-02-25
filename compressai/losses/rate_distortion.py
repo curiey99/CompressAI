@@ -176,7 +176,6 @@ class FusionWarpedLoss(nn.Module):
         out["p3_mse"] = p3_mse.mean().item()
         out["p4_mse"] = p4_mse.mean().item()
         out["p5_mse"] = p5_mse.mean().item()
-        print("BASE LOSS:", out["p2_mse"])
         out["mse_loss"] = torch.mean(out["p2_mseloss"]) + torch.mean(out["p3_mseloss"]) + torch.mean(out["p4_mseloss"]) + torch.mean(out["p5_mseloss"])
 
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
@@ -361,8 +360,6 @@ class SpatialMedoLoss(nn.Module):
         out["p5_mse"] = p5_mse.mean().item()
         
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
-        print("MEDO LOSS:", out["p2_mse"])
-
         return out
 
 
