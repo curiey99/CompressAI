@@ -362,6 +362,100 @@ class SpatialMedoLoss(nn.Module):
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
         return out
 
+@register_criterion("SpatialMedoLoss")
+class SpatialMedoLoss_Test(nn.Module):
+    """Custom rate distortion loss with a Lagrangian parameter."""
+
+    def __init__(self, lmbda=1e-2):
+        super().__init__()
+        self.mse = nn.MSELoss()
+        self.lmbda = lmbda
+
+    def forward(self, output, target, mask, mask_coef=1.0): 
+
+        out = {}
+        num_pixels = 0
+        
+        for p in target:
+            N, _, H, W = p.size()
+            num_pixels += N * H * W
+            
+
+        out["bpp_loss"] = sum(
+            (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
+            for likelihoods in output["likelihoods"].values()
+        )
+
+        ### base
+
+        out["mse_loss_base"] = self.mse(output["features"][0], target[0]) + self.mse(output["features"][1], target[1]) + self.mse(output["features"][2], target[2]) + self.mse(output["features"][3], target[3])
+
+
+        out["p2_mse_base"] = (torch.square(output["features"][0] - target[0])).mean().item()
+        out["p3_mse_base"] = (torch.square(output["features"][1] - target[1])).mean().item()
+        out["p4_mse_base"] = (torch.square(output["features"][2] - target[2])).mean().item()
+        out["p5_mse_base"] = (torch.square(output["features"][3] - target[3])).mean().item()
+
+      
+        out["loss_base"] = self.lmbda * 255**2 * out["mse_loss_base"] + out["bpp_loss"]
+
+        ### mask
+
+        p2_mse = torch.square(output["features"][0] - target[0])# + 0.00000001
+        p3_mse = torch.square(output["features"][1] - target[1])# + 0.00000001
+        p4_mse = torch.square(output["features"][2] - target[2])# + 0.00000001
+        p5_mse = torch.square(output["features"][3] - target[3])# + 0.00000001
+
+        
+       
+        p2_mask = 1.0 - ((1.0 - mask) * mask_coef)
+        p2_mask = torch.clamp(p2_mask, min=0.000000001, max=1.0)
+        
+       
+        if torch.min(p2_mask) == 0:
+            p2_mask = torch.clamp(p2_mask, min=0.000000001, max=1.0)
+        p2_mask = p2_mask / torch.max(p2_mask)
+        p2_mask = torch.clamp(p2_mask, min=0.000000001, max=1.0)
+       
+
+        p3_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.5, mode='bilinear', align_corners=False, antialias=True)
+        p4_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.25, mode='bilinear', align_corners=False, antialias=True)
+        p5_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.125, mode='bilinear', align_corners=False, antialias=True)
+        
+       
+        p3_mask = torch.clamp(p3_mask, min=0.00000001, max=1.0)
+        p3_mask = p3_mask / torch.max(p3_mask)
+        p3_mask = torch.clamp(p3_mask, min=0.00000001, max=1.0)
+
+       
+        p4_mask = torch.clamp(p4_mask, min=0.00000001, max=1.0)
+        p4_mask = p4_mask / torch.max(p4_mask)
+        p4_mask = torch.clamp(p4_mask, min=0.00000001, max=1.0)
+        
+        p5_mask = torch.clamp(p5_mask, min=0.00000001, max=1.0)
+        p5_mask = p5_mask / torch.max(p5_mask)
+        p5_mask = torch.clamp(p5_mask, min=0.00000001, max=1.0)
+
+        
+
+        out["p2_mseloss_mask"] = p2_mse * p2_mask
+        out["p3_mseloss_mask"] = p3_mse * p3_mask
+        out["p4_mseloss_mask"] = p4_mse * p4_mask
+        out["p5_mseloss_mask"] = p5_mse * p5_mask
+        
+        out["mse_loss_mask"] = torch.mean(out["p2_mseloss_mask"]) + torch.mean(out["p3_mseloss_mask"]) + torch.mean(out["p4_mseloss_mask"]) + torch.mean(out["p5_mseloss_mask"])   
+
+
+        out["p2_mse_mask"] = p2_mse.mean().item()
+        out["p3_mse_mask"] = p3_mse.mean().item()
+        out["p4_mse_mask"] = p4_mse.mean().item()
+        out["p5_mse_maskv"] = p5_mse.mean().item()
+        
+        out["loss_mask"] = self.lmbda * 255**2 * out["mse_loss_mask"] + out["bpp_loss"]
+
+        return out
+
+
 
 
 
