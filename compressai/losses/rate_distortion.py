@@ -398,7 +398,7 @@ class SpatialMedoLoss_Test(nn.Module):
 
       
         out["loss_base"] = self.lmbda * 255**2 * out["mse_loss_base"] + out["bpp_loss"]
-
+        
         ### mask
 
         p2_mse = torch.square(output["features"][0] - target[0])# + 0.00000001
@@ -449,7 +449,7 @@ class SpatialMedoLoss_Test(nn.Module):
         out["p2_mse_mask"] = p2_mse.mean().item()
         out["p3_mse_mask"] = p3_mse.mean().item()
         out["p4_mse_mask"] = p4_mse.mean().item()
-        out["p5_mse_maskv"] = p5_mse.mean().item()
+        out["p5_mse_mask"] = p5_mse.mean().item()
         
         out["loss_mask"] = self.lmbda * 255**2 * out["mse_loss_mask"] + out["bpp_loss"]
 
