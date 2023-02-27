@@ -48,15 +48,12 @@ import cv2
 class ImageCv2(Dataset):
 
     def __init__(self, root, transform=None, split="train"):
-        print(type(Path(root)))
-        print(type(Path(root)/split))
 
         self.splitdir = Path(root) / split
 
         if not self.splitdir.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
 
-        self.samples = [f for f in self.splitdir.iterdir() if f.is_file()]
         self.samples = [f for f in (Path(root)/split).iterdir() if f.is_file()]
         
 
