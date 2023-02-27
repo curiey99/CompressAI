@@ -48,7 +48,7 @@ import cv2
 class ImageCv2(Dataset):
 
     def __init__(self, root, transform=None, split="train"):
-        self.splitdir = Path(root) / split
+        self.splitdir = sorted(Path(root) / split)
 
         if not self.splitdir.is_dir():
             raise RuntimeError(f'Invalid directory "{root}"')
