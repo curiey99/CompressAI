@@ -55,6 +55,7 @@ class ImageCv2(Dataset):
             raise RuntimeError(f'Invalid directory "{root}"')
 
         self.samples = [f for f in (Path(root)/split).iterdir() if f.is_file()]
+        self.transform = transform
         
 
     def __getitem__(self, index):
@@ -66,6 +67,8 @@ class ImageCv2(Dataset):
             img: `PIL.Image.Image` or transformed `PIL.Image.Image`.
         """
         img = cv2.imread(os.path.join(self.splitdir, self.samples[index]))
+        if self.transform:
+            return self.transform(img)
         return img
 
     def __len__(self):
