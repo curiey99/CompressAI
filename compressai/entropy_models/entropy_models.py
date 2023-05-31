@@ -660,9 +660,6 @@ class GaussianConditional(EntropyModel):
     ) -> Tensor:
         half = float(0.5)
 
-        # print(values.shape)
-        print(inputs.shape)
-        print(means.shape)
         if means is not None:
             values = inputs - means
         else:
