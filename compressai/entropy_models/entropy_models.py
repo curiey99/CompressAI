@@ -660,7 +660,6 @@ class GaussianConditional(EntropyModel):
     ) -> Tensor:
         half = float(0.5)
 
-        print("means: {}\n".format(means))
         # print(values.shape)
         print(inputs.shape)
         print(means.shape)
