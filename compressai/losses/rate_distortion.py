@@ -293,8 +293,6 @@ class SpatialMedoLoss(nn.Module):
     def forward(self, output, target, mask, mask_coef=1.0): 
         
 
-        print("out target {} {}".format(output['features'][0].shape, target[0].shape))
-        print("mask shape {}".format(mask.shape))
         out = {}
         num_pixels = 0
         
