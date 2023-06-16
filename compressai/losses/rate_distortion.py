@@ -285,12 +285,13 @@ class WarpedRDLoss(nn.Module):
 class SpatialMedoLoss(nn.Module):
     """Custom rate distortion loss with a Lagrangian parameter."""
 
-    def __init__(self, lmbda=1e-2):
+    def __init__(self, lmbda=1e-2, mask_coef=1.0):
         super().__init__()
         self.mse = nn.MSELoss()
         self.lmbda = lmbda
+        self.mask_coef = mask_coef
 
-    def forward(self, output, target, mask, mask_coef=1.0): 
+    def forward(self, output, target, mask): 
 
         out = {}
         num_pixels = 0
@@ -306,21 +307,18 @@ class SpatialMedoLoss(nn.Module):
         )
 
 
-        p2_mse = torch.square(output["features"][0] - target[0])# + 0.00000001
-        p3_mse = torch.square(output["features"][1] - target[1])# + 0.00000001
-        p4_mse = torch.square(output["features"][2] - target[2])# + 0.00000001
-        p5_mse = torch.square(output["features"][3] - target[3])# + 0.00000001
+        p2_mse = torch.square(output["features"][0] - target[0])
+        p3_mse = torch.square(output["features"][1] - target[1])
+        p4_mse = torch.square(output["features"][2] - target[2])
+        p5_mse = torch.square(output["features"][3] - target[3])
 
         
        
-        p2_mask = 1.0 - ((1.0 - mask) * mask_coef)
-        p2_mask = torch.clamp(p2_mask, min=0.000000001, max=1.0)
-        
+        p2_mask = 1.0 - ((1.0 - mask) * self.mask_coef)
+
        
-        if torch.min(p2_mask) == 0:
-            p2_mask = torch.clamp(p2_mask, min=0.000000001, max=1.0)
-        p2_mask = p2_mask / torch.max(p2_mask)
         p2_mask = torch.clamp(p2_mask, min=0.000000001, max=1.0)
+        p2_mask = p2_mask / torch.max(p2_mask)
        
 
         p3_mask = torch.nn.functional.interpolate(p2_mask, scale_factor=0.5, mode='bilinear', align_corners=False, antialias=True)
@@ -330,16 +328,14 @@ class SpatialMedoLoss(nn.Module):
        
         p3_mask = torch.clamp(p3_mask, min=0.00000001, max=1.0)
         p3_mask = p3_mask / torch.max(p3_mask)
-        p3_mask = torch.clamp(p3_mask, min=0.00000001, max=1.0)
+        # e.g (0.3, 0.8) -> (0.375, 1.0)
 
        
         p4_mask = torch.clamp(p4_mask, min=0.00000001, max=1.0)
         p4_mask = p4_mask / torch.max(p4_mask)
-        p4_mask = torch.clamp(p4_mask, min=0.00000001, max=1.0)
         
         p5_mask = torch.clamp(p5_mask, min=0.00000001, max=1.0)
         p5_mask = p5_mask / torch.max(p5_mask)
-        p5_mask = torch.clamp(p5_mask, min=0.00000001, max=1.0)
 
         
 
