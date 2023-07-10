@@ -359,22 +359,3 @@ class SpatialMedoLoss(nn.Module):
         return out
 
 
-
-
-def unpad(out_feature, hpad, wpad):
-
-    if hpad != 0 and wpad  == 0:
-        out_feature[0] = out_feature[0][:, :, math.floor(hpad /2):-math.ceil(hpad /2), :]
-        out_feature[1] = out_feature[1][:, :, math.floor(hpad//2 /2):-math.ceil(hpad//2 /2), :]
-        out_feature[2] = out_feature[2][:, :, math.floor(hpad//4 /2):-math.ceil(hpad//4 /2), :]
-        out_feature[3] = out_feature[3][:, :, math.floor(hpad//8 /2):-math.ceil(hpad//8 /2), :]
-    elif wpad != 0 and hpad  == 0:
-        out_feature[0] = out_feature[0][:, :, :, math.floor(wpad /2):-math.ceil(wpad /2)]
-        out_feature[1] = out_feature[1][:, :, :, math.floor(wpad//2 /2):-math.ceil(wpad//2 /2)]
-        out_feature[2] = out_feature[2][:, :, :, math.floor(wpad//4 /2):-math.ceil(wpad//4 /2)]
-        out_feature[3] = out_feature[3][:, :, :, math.floor(wpad//8 /2):-math.ceil(wpad//8 /2)]
-    elif wpad != 0 and hpad  != 0:
-        out_feature[0] = out_feature[0][:, :, math.floor(hpad /2):-math.ceil(hpad /2), math.floor(wpad/2):-math.ceil(wpad/2)]
-        out_feature[1] = out_feature[1][:, :, math.floor(hpad//2 /2):-math.ceil(hpad//2 /2), math.floor(wpad//2/2):-math.ceil(wpad//2/2)]
-        out_feature[2] = out_feature[2][:, :, math.floor(hpad//4 /2):-math.ceil(hpad//4 /2), math.floor(wpad//4/2):-math.ceil(wpad//4/2)]
-        out_feature[3] = out_feature[3][:, :, math.floor(hpad//8 /2):-math.ceil(hpad//8 /2), math.floor(wpad//8/2):-math.ceil(wpad//8/2)]
