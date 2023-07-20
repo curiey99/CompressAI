@@ -32,6 +32,7 @@ from .rate_distortion import WarpedRDLoss
 from .rate_distortion import FusionRDLoss
 from .rate_distortion import FusionRDLoss_P
 from .rate_distortion import FusionWarpedLoss
+from .rate_distortion import FusionWarpedLoss_Test
 from .rate_distortion import FusionWarpedLoss_Pwise
 from .rate_distortion import SpatialMedoLoss
 
@@ -41,6 +42,7 @@ __all__ = [
     "FusionRDLoss",
     "FusionRDLoss_P",
     "FusionWarpedLoss",
+    "FusionWarpedLoss_Test",
     "FusionWarpedLoss_Pwise",
     "SpatialMedoLoss"
 ]
