@@ -157,13 +157,19 @@ class FusionWarpedLoss(nn.Module):
             (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
             for likelihoods in output["likelihoods"].values()
         )
+        
+        print(output['features'][0].shape)
+        print(output['features'][1].shape)
+
+        p2_bpp = torch.ones(output["features"][0].shape) * out["bpp_loss"]
+        p3_bpp = torch.ones(output["features"][1].shape) * out["bpp_loss"]
+        p4_bpp = torch.ones(output["features"][2].shape) * out["bpp_loss"]
+        p5_bpp = torch.ones(output["features"][3].shape) * out["bpp_loss"]
 
         p2_mse = torch.square(output["features"][0] - target[0])
         p3_mse = torch.square(output["features"][1] - target[1])
         p4_mse = torch.square(output["features"][2] - target[2])
         p5_mse = torch.square(output["features"][3] - target[3])
-
-
 
         out["p2_mseloss"] = p2_mse * torch.sigmoid((p2_mse-self.alpha)/self.beta)
         out["p3_mseloss"] = p3_mse * torch.sigmoid((p3_mse-self.alpha)/self.beta)
@@ -176,9 +182,79 @@ class FusionWarpedLoss(nn.Module):
         out["p3_mse"] = p3_mse.mean().item()
         out["p4_mse"] = p4_mse.mean().item()
         out["p5_mse"] = p5_mse.mean().item()
+
         out["mse_loss"] = torch.mean(out["p2_mseloss"]) + torch.mean(out["p3_mseloss"]) + torch.mean(out["p4_mseloss"]) + torch.mean(out["p5_mseloss"])
 
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
+
+        out["p2_loss"] = self.lmbda * p2_mse * 255**2 + p2_bpp
+        out["p3_loss"] = self.lmbda * p3_mse * 255**2 + p3_bpp
+        out["p4_loss"] = self.lmbda * p4_mse * 255**2 + p4_bpp
+        out["p5_loss"] = self.lmbda * p5_mse * 255**2 + p5_bpp
+
+        return out
+
+@register_criterion("FusionWarpedLoss")
+class FusionWarpedLoss_Test(nn.Module):
+    """Custom rate distortion loss with a Lagrangian parameter."""
+
+    def __init__(self, lmbda=1e-2, alpha=1.0, beta=0.05):
+        super().__init__()
+        self.mse = nn.MSELoss()
+        self.lmbda = lmbda
+
+        self.alpha = alpha
+        self.beta = beta
+
+    def forward(self, output, target): 
+        # out_net,                                  , d
+        # dict{"features"(list), "likelihoods"}     , list[p2~p5]
+        out = {}
+        num_pixels = 0
+        
+        for p in target:
+            N, _, H, W = p.size()
+            num_pixels += N * H * W
+            
+
+        out["bpp_loss"] = sum(
+            (torch.log(likelihoods).sum() / (-math.log(2) * num_pixels))
+            for likelihoods in output["likelihoods"].values()
+        )
+        
+        print(output['features'][0].shape)
+        print(output['features'][1].shape)
+
+        p2_bpp = torch.ones(output["features"][0].shape) * out["bpp_loss"]
+        p3_bpp = torch.ones(output["features"][1].shape) * out["bpp_loss"]
+        p4_bpp = torch.ones(output["features"][2].shape) * out["bpp_loss"]
+        p5_bpp = torch.ones(output["features"][3].shape) * out["bpp_loss"]
+
+        p2_mse = torch.square(output["features"][0] - target[0])
+        p3_mse = torch.square(output["features"][1] - target[1])
+        p4_mse = torch.square(output["features"][2] - target[2])
+        p5_mse = torch.square(output["features"][3] - target[3])
+
+        out["p2_mseloss"] = p2_mse * torch.sigmoid((p2_mse-self.alpha)/self.beta)
+        out["p3_mseloss"] = p3_mse * torch.sigmoid((p3_mse-self.alpha)/self.beta)
+        out["p4_mseloss"] = p4_mse * torch.sigmoid((p4_mse-self.alpha)/self.beta)
+        out["p5_mseloss"] = p5_mse * torch.sigmoid((p5_mse-self.alpha)/self.beta)
+        
+
+
+        out["p2_mse"] = p2_mse.mean().item()
+        out["p3_mse"] = p3_mse.mean().item()
+        out["p4_mse"] = p4_mse.mean().item()
+        out["p5_mse"] = p5_mse.mean().item()
+
+        out["mse_loss"] = torch.mean(out["p2_mseloss"]) + torch.mean(out["p3_mseloss"]) + torch.mean(out["p4_mseloss"]) + torch.mean(out["p5_mseloss"])
+
+        out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
+
+        out["p2_loss"] = self.lmbda * p2_mse * 255**2 + p2_bpp
+        out["p3_loss"] = self.lmbda * p3_mse * 255**2 + p3_bpp
+        out["p4_loss"] = self.lmbda * p4_mse * 255**2 + p4_bpp
+        out["p5_loss"] = self.lmbda * p5_mse * 255**2 + p5_bpp
 
         return out
 
