@@ -240,10 +240,10 @@ class FusionWarpedLoss_Test(nn.Module):
 
         out["loss"] = self.lmbda * 255**2 * out["mse_loss"] + out["bpp_loss"]
 
-        out["p2_loss"] = self.lmbda * p2_mse * 255**2 + p2_bpp
-        out["p3_loss"] = self.lmbda * p3_mse * 255**2 + p3_bpp
-        out["p4_loss"] = self.lmbda * p4_mse * 255**2 + p4_bpp
-        out["p5_loss"] = self.lmbda * p5_mse * 255**2 + p5_bpp
+        out["p2_loss"] = self.lmbda * out["p2_mse"] * 255**2 +  out["bpp_loss"]
+        out["p3_loss"] = self.lmbda * out["p3_mse"] * 255**2 +  out["bpp_loss"]
+        out["p4_loss"] = self.lmbda * out["p4_mse"]* 255**2 +  out["bpp_loss"]
+        out["p5_loss"] = self.lmbda * out["p5_mse"] * 255**2 +  out["bpp_loss"]
 
         return out
 
