@@ -231,10 +231,10 @@ class FusionWarpedLoss_Test(nn.Module):
         
 
 
-        out["p2_mse"] = p2_mse.mean().item()
-        out["p3_mse"] = p3_mse.mean().item()
-        out["p4_mse"] = p4_mse.mean().item()
-        out["p5_mse"] = p5_mse.mean().item()
+        out["p2_mse"] = p2_mse.mean()
+        out["p3_mse"] = p3_mse.mean()
+        out["p4_mse"] = p4_mse.mean()
+        out["p5_mse"] = p5_mse.mean()
 
         out["mse_loss"] = torch.mean(out["p2_mseloss"]) + torch.mean(out["p3_mseloss"]) + torch.mean(out["p4_mseloss"]) + torch.mean(out["p5_mseloss"])
 
