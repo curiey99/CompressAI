@@ -211,13 +211,13 @@ class FusionWarpedLoss_Test(nn.Module):
             for likelihoods in output["likelihoods"].values()
         )
         
-        print(output['features'][0].shape)
-        print(output['features'][1].shape)
+        # print(output['features'][0].shape)
+        # print(output['features'][1].shape)
 
-        p2_bpp = torch.ones(output["features"][0].shape) * out["bpp_loss"]
-        p3_bpp = torch.ones(output["features"][1].shape) * out["bpp_loss"]
-        p4_bpp = torch.ones(output["features"][2].shape) * out["bpp_loss"]
-        p5_bpp = torch.ones(output["features"][3].shape) * out["bpp_loss"]
+        # p2_bpp = torch.ones(output["features"][0].shape) * out["bpp_loss"]
+        # p3_bpp = torch.ones(output["features"][1].shape) * out["bpp_loss"]
+        # p4_bpp = torch.ones(output["features"][2].shape) * out["bpp_loss"]
+        # p5_bpp = torch.ones(output["features"][3].shape) * out["bpp_loss"]
 
         p2_mse = torch.square(output["features"][0] - target[0])
         p3_mse = torch.square(output["features"][1] - target[1])
